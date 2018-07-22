@@ -32,7 +32,7 @@ namespace QuakeMapViewer {
             return;
          string filePath = dlg.FileName;
          var buf = File.ReadAllBytes(filePath);
-         this.bsp = buf.ReadBsp();
+         this.bsp = Bsp.Read(buf);
       }
    }
 }
