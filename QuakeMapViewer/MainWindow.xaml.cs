@@ -24,16 +24,15 @@ namespace QuakeMapViewer {
          InitializeComponent();
       }
 
+      private Bsp bsp = null;
+
       private void btnLoad_Click(object sender, RoutedEventArgs e) {
          OpenFileDialog dlg = new OpenFileDialog();
          if (dlg.ShowDialog(this) == false)
             return;
          string filePath = dlg.FileName;
          var buf = File.ReadAllBytes(filePath);
-         using (var sr = new MemoryStream(buf))
-         using (var br = new BinaryReader(sr)) {
-            Header header = br.ReadHeader();
-         }
+         this.bsp = buf.ReadBsp();
       }
    }
 }
