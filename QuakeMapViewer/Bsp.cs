@@ -114,10 +114,9 @@ namespace QuakeMapViewer {
       }
 
       public static T[] ReadItems<T>(BinaryReader br, Entry entry, Func<BinaryReader, T> itemReader) {
-         br.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
-         
+         var stream = br.BaseStream;
          var items = new List<T>();
-         for (br.BaseStream.Seek(entry.offset, SeekOrigin.Begin); br.BaseStream.Position < entry.offset+entry.size;) {
+         for (stream.Seek(entry.offset, SeekOrigin.Begin); stream.Position < entry.offset+entry.size;) {
             T item = itemReader(br);
             items.Add(item);
          }
