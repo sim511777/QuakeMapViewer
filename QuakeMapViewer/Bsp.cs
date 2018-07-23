@@ -6,80 +6,6 @@ using System.Threading.Tasks;
 using System.IO;
 
 namespace QuakeMapViewer {
-   class Vertex {
-      public float x;
-      public float y;
-      public float z;
-      public static Vertex Read(BinaryReader br) {
-         Vertex vertex = new Vertex();
-         vertex.x = br.ReadSingle();
-         vertex.y = br.ReadSingle();
-         vertex.z = br.ReadSingle();
-         return vertex;
-      }
-   }
-
-   enum PlaneType {
-      AxialPlaneInX,
-      AxialPlaneInY,
-      AxialPlaneInZ,
-      NonAxialPlaneTowardX,
-      NonAxialPlaneTowardY,
-      NonAxialPlaneTowardZ,
-   }
-
-   class Plane {
-      public Vertex normal;
-      public float dist;
-      public PlaneType type;
-      public static Plane Read(BinaryReader br) {
-         Plane plane = new Plane();
-         plane.normal = Vertex.Read(br);
-         plane.dist = br.ReadSingle();
-         plane.type = (PlaneType)br.ReadInt32();
-         return plane;
-      }
-   }
-
-   class Face {
-      public ushort plane_id;
-      public ushort side;
-      public int    ledge_id;
-      public ushort ledge_num;
-      public ushort texinfo_id;
-      public byte   typelight;
-      public byte   baselight;
-      public byte   light0;
-      public byte   light1;
-      public int    lightmap;
-      public static Face Read(BinaryReader br) {
-         Face face       = new Face();
-         face.plane_id   = br.ReadUInt16();
-         face.side       = br.ReadUInt16();
-         face.ledge_id   = br.ReadInt32();
-         face.ledge_num  = br.ReadUInt16();
-         face.texinfo_id = br.ReadUInt16();
-         face.typelight  = br.ReadByte();
-         face.baselight  = br.ReadByte();
-         face.light0     = br.ReadByte();
-         face.light1     = br.ReadByte();
-         face.lightmap   = br.ReadInt32();
-         return face;
-      }
-   }
-
-   class Edge {
-      public ushort vertex0;
-      public ushort vertex1;
-      public static Edge Read(BinaryReader br) {
-         Edge edge   = new Edge();
-         edge.vertex0 = br.ReadUInt16();
-         edge.vertex1 = br.ReadUInt16();
-         return edge;
-      }
-
-   }
-
    class Bsp {
       //public Entry entities; // List of Entities.
       public Plane[] planes;   // Map Planes.
@@ -171,6 +97,79 @@ namespace QuakeMapViewer {
          header.ledges    = Entry.Read(br);
          header.models    = Entry.Read(br);
          return header;
+      }
+   }
+
+   class Vertex {
+      public float x;
+      public float y;
+      public float z;
+      public static Vertex Read(BinaryReader br) {
+         Vertex vertex = new Vertex();
+         vertex.x = br.ReadSingle();
+         vertex.y = br.ReadSingle();
+         vertex.z = br.ReadSingle();
+         return vertex;
+      }
+   }
+
+   enum PlaneType {
+      AxialPlaneInX,
+      AxialPlaneInY,
+      AxialPlaneInZ,
+      NonAxialPlaneTowardX,
+      NonAxialPlaneTowardY,
+      NonAxialPlaneTowardZ,
+   }
+
+   class Plane {
+      public Vertex normal;
+      public float dist;
+      public PlaneType type;
+      public static Plane Read(BinaryReader br) {
+         Plane plane = new Plane();
+         plane.normal = Vertex.Read(br);
+         plane.dist = br.ReadSingle();
+         plane.type = (PlaneType)br.ReadInt32();
+         return plane;
+      }
+   }
+
+   class Face {
+      public ushort plane_id;
+      public ushort side;
+      public int    ledge_id;
+      public ushort ledge_num;
+      public ushort texinfo_id;
+      public byte   typelight;
+      public byte   baselight;
+      public byte   light0;
+      public byte   light1;
+      public int    lightmap;
+      public static Face Read(BinaryReader br) {
+         Face face       = new Face();
+         face.plane_id   = br.ReadUInt16();
+         face.side       = br.ReadUInt16();
+         face.ledge_id   = br.ReadInt32();
+         face.ledge_num  = br.ReadUInt16();
+         face.texinfo_id = br.ReadUInt16();
+         face.typelight  = br.ReadByte();
+         face.baselight  = br.ReadByte();
+         face.light0     = br.ReadByte();
+         face.light1     = br.ReadByte();
+         face.lightmap   = br.ReadInt32();
+         return face;
+      }
+   }
+
+   class Edge {
+      public ushort vertex0;
+      public ushort vertex1;
+      public static Edge Read(BinaryReader br) {
+         Edge edge   = new Edge();
+         edge.vertex0 = br.ReadUInt16();
+         edge.vertex1 = br.ReadUInt16();
+         return edge;
       }
    }
 }
