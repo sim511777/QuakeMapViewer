@@ -9,7 +9,8 @@ namespace QuakeMapViewer {
    class Bsp {
       //public Entry entities; // List of Entities.
       public Plane[] planes;   // Map Planes.
-      //public Entry miptex;   // Wall Textures.
+      public Mipheader mipheader;   // Wall Textures.
+      public Miptex[] miptexs;
       public Vertex[] vertices; // Map Vertices.
       //public Entry visilist; // Leaves Visibility lists.
       //public Entry nodes;    // BSP Nodes.
@@ -30,6 +31,13 @@ namespace QuakeMapViewer {
             
             Bsp bsp = new Bsp();
             bsp.planes     = ReadItems(br, header.planes,   (b)=>Plane.Read(b));
+            br.BaseStream.Seek(header.miptex.offset, SeekOrigin.Begin);
+            bsp.mipheader  = Mipheader.Read(br);
+            bsp.miptexs    = new Miptex[bsp.mipheader.numtex];
+            for (int i=0; i<bsp.miptexs.Length; i++) {
+               br.BaseStream.Seek(header.miptex.offset+bsp.mipheader.offset[i], SeekOrigin.Begin);
+               bsp.miptexs[i] = Miptex.Read(br);
+            }
             bsp.vertices   = ReadItems(br, header.vertices, (b)=>Vertex.Read(b));
             bsp.faces      = ReadItems(br, header.faces,    (b)=>Face.Read(b));
             bsp.lface      = ReadItems(br, header.lface,    (b)=>b.ReadUInt16());
@@ -132,6 +140,42 @@ namespace QuakeMapViewer {
          plane.dist = br.ReadSingle();
          plane.type = (PlaneType)br.ReadInt32();
          return plane;
+      }
+   }
+
+   class Mipheader {
+      public int numtex;
+      public int[] offset;
+      public static Mipheader Read(BinaryReader br) {
+         Mipheader mipheader = new Mipheader();
+         mipheader.numtex = br.ReadInt32();
+         mipheader.offset = new Int32[mipheader.numtex];
+         for (int i=0; i<mipheader.numtex; i++) {
+            mipheader.offset[i] = br.ReadInt32();
+         }
+         return mipheader;
+      }
+   }
+
+   class Miptex {
+      public string name;  // 16
+      public uint width;
+      public uint height;
+      public uint offset1;
+      public uint offset2;
+      public uint offset4;
+      public uint offset8;
+      public static Miptex Read(BinaryReader br) {
+         Miptex miptex = new Miptex();
+         var bytes = br.ReadBytes(16);
+         miptex.name = Encoding.ASCII.GetString(bytes, 0, bytes.ToList().IndexOf(0));
+         miptex.width = br.ReadUInt32();
+         miptex.height = br.ReadUInt32();
+         miptex.offset1 = br.ReadUInt32();
+         miptex.offset2 = br.ReadUInt32();
+         miptex.offset4 = br.ReadUInt32();
+         miptex.offset8 = br.ReadUInt32();
+         return miptex;
       }
    }
 
