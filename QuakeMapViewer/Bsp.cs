@@ -103,24 +103,25 @@ namespace QuakeMapViewer {
             Header header = Header.Read(br);
             
             Bsp bsp = new Bsp();
-            bsp.planes     = ReadItems(br, header.planes, 20, (b)=>Plane.Read(b));
-            bsp.vertices   = ReadItems(br, header.vertices, 12, (b)=>Vertex.Read(b));
-            bsp.faces      = ReadItems(br, header.faces, 20, (b)=>Face.Read(b));
-            bsp.lface      = ReadItems(br, header.lface, 2, (b)=>b.ReadUInt16());
-            bsp.edges      = ReadItems(br, header.edges, 4, (b)=>Edge.Read(b));
-            bsp.ledges     = ReadItems(br, header.ledges, 2, (b)=>b.ReadUInt16());
+            bsp.planes     = ReadItems(br, header.planes,   (b)=>Plane.Read(b));
+            bsp.vertices   = ReadItems(br, header.vertices, (b)=>Vertex.Read(b));
+            bsp.faces      = ReadItems(br, header.faces,    (b)=>Face.Read(b));
+            bsp.lface      = ReadItems(br, header.lface,    (b)=>b.ReadUInt16());
+            bsp.edges      = ReadItems(br, header.edges,    (b)=>Edge.Read(b));
+            bsp.ledges     = ReadItems(br, header.ledges,   (b)=>b.ReadUInt16());
             return bsp;
          }
       }
 
-      public static T[] ReadItems<T>(BinaryReader br, Entry entry, int itemSize, Func<BinaryReader, T> itemReader) {
+      public static T[] ReadItems<T>(BinaryReader br, Entry entry, Func<BinaryReader, T> itemReader) {
          br.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
-         var items = new T[entry.size / itemSize];
-         for (int i=0; i<items.Length; i++) {
+         
+         var items = new List<T>();
+         for (br.BaseStream.Seek(entry.offset, SeekOrigin.Begin); br.BaseStream.Position < entry.offset+entry.size;) {
             T item = itemReader(br);
-            items[i] = item;
+            items.Add(item);
          }
-         return items;
+         return items.ToArray();
       }
    }
 
@@ -152,7 +153,6 @@ namespace QuakeMapViewer {
       public Entry edges;
       public Entry ledges;
       public Entry models;
-
       public static Header Read(BinaryReader br) {
          Header header    = new Header();
          header.version   = br.ReadInt32();
