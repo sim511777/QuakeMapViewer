@@ -7,22 +7,22 @@ using System.IO;
 
 namespace QuakeMapViewer {
    class Bsp {
-      //public Entry entities; // List of Entities.
+      public string entities; // List of Entities.
       public Plane[] planes;   // Map Planes.
       public Mipheader mipheader;   // Wall Textures.
       public Miptex[] miptexs;
       public Vertex[] vertices; // Map Vertices.
-      //public Entry visilist; // Leaves Visibility lists.
-      //public Entry nodes;    // BSP Nodes.
-      //public Entry texinfo;  // Texture Info for faces.
+      public byte[] visilist; // Leaves Visibility lists.
+      public Node[] nodes;    // BSP Nodes.
+      public Surface[] texinfo;  // Texture Info for faces.
       public Face[] faces;    // Faces of each surface.
-      //public Entry lightmaps;// Wall Light Maps.
-      //public Entry clipnodes;// clip nodes, for Models.
-      //public Entry leaves;   // BSP Leaves.
+      public byte[] lightmaps;// Wall Light Maps.
+      public Clipnode[] clipnodes;// clip nodes, for Models.
+      public Leaf[] leaves;   // BSP Leaves.
       public ushort[] lface;    // List of Faces.
       public Edge[] edges;    // Edges of faces.
       public ushort[] ledges;   // List of Edges.
-      //public Entry models;   // List of Models.
+      public Model[] models;   // List of Models.
 
       public static Bsp Read(byte[] buf) {
          using (var ms = new MemoryStream(buf))
@@ -30,7 +30,12 @@ namespace QuakeMapViewer {
             Header header = Header.Read(br);
             
             Bsp bsp = new Bsp();
+
+            var entitiesBytes = ReadItems(br, header.entities, (b)=>b.ReadByte());
+            bsp.entities   = Encoding.ASCII.GetString(entitiesBytes, 0, entitiesBytes.ToList().IndexOf((byte)0));
+            
             bsp.planes     = ReadItems(br, header.planes,   (b)=>Plane.Read(b));
+
             br.BaseStream.Seek(header.miptex.offset, SeekOrigin.Begin);
             bsp.mipheader  = Mipheader.Read(br);
             bsp.miptexs    = new Miptex[bsp.mipheader.numtex];
@@ -38,11 +43,20 @@ namespace QuakeMapViewer {
                br.BaseStream.Seek(header.miptex.offset+bsp.mipheader.offset[i], SeekOrigin.Begin);
                bsp.miptexs[i] = Miptex.Read(br);
             }
+            
             bsp.vertices   = ReadItems(br, header.vertices, (b)=>Vertex.Read(b));
+            bsp.visilist   = ReadItems(br, header.visilist, (b)=>b.ReadByte());
+            bsp.nodes      = ReadItems(br, header.nodes,    (b)=>Node.Read(b));
+            bsp.texinfo    = ReadItems(br, header.texinfo,  (b)=>Surface.Read(b));
             bsp.faces      = ReadItems(br, header.faces,    (b)=>Face.Read(b));
+            bsp.lightmaps  = ReadItems(br, header.lightmaps,(b)=>b.ReadByte());
+            bsp.clipnodes  = ReadItems(br, header.clipnodes,(b)=>Clipnode.Read(b));
+            bsp.leaves     = ReadItems(br, header.leaves,   (b)=>Leaf.Read(b));
             bsp.lface      = ReadItems(br, header.lface,    (b)=>b.ReadUInt16());
             bsp.edges      = ReadItems(br, header.edges,    (b)=>Edge.Read(b));
             bsp.ledges     = ReadItems(br, header.ledges,   (b)=>b.ReadUInt16());
+            bsp.models     = ReadItems(br, header.models,   (b)=>Model.Read(b));
+            
             return bsp;
          }
       }
@@ -121,6 +135,137 @@ namespace QuakeMapViewer {
       }
    }
 
+   class Boundbox {
+      Vertex min;
+      Vertex max;
+      public static Boundbox Read(BinaryReader br) {
+         Boundbox box = new Boundbox();
+         box.min = Vertex.Read(br);
+         box.max = Vertex.Read(br);
+         return box;
+      }
+   }
+
+   class BBoxshort {
+      short   minX;
+      short   minY;
+      short   minZ;
+      short   maxX;
+      short   maxY;
+      short   maxZ;
+      public static BBoxshort Read(BinaryReader br) {
+         BBoxshort box = new BBoxshort();
+         box.minX = br.ReadInt16();
+         box.minY = br.ReadInt16();
+         box.minZ = br.ReadInt16();
+         box.maxX = br.ReadInt16();
+         box.maxY = br.ReadInt16();
+         box.maxZ = br.ReadInt16();
+         return box;
+      }
+   }
+
+   class Node {
+      int      plane_id;
+      ushort   front;
+      ushort   back;
+      BBoxshort box;
+      ushort   face_id;
+      ushort   face_num;
+      public static Node Read(BinaryReader br) {
+         Node node = new Node();
+         node.plane_id  = br.ReadInt32();
+         node.front     = br.ReadUInt16();
+         node.back      = br.ReadUInt16();
+         node.box       = BBoxshort.Read(br);
+         node.face_id   = br.ReadUInt16();
+         node.face_num  = br.ReadUInt16();
+         return node;
+      }
+   }
+
+   class Surface {
+      Vertex   vectorS;
+      float    distS;
+      Vertex   vectorT;
+      float    distT;
+      uint     texture_id;
+      uint     animated;
+      public static Surface Read(BinaryReader br) {
+         Surface surface      = new Surface();
+         surface.vectorS      = Vertex.Read(br);
+         surface.distS        = br.ReadSingle();
+         surface.vectorT      = Vertex.Read(br);
+         surface.distT        = br.ReadSingle();
+         surface.texture_id   = br.ReadUInt32();
+         surface.animated     = br.ReadUInt32();
+         return surface;
+      }
+   }
+
+   class Clipnode {
+      uint planenum;
+      short front;
+      short back;
+      public static Clipnode Read(BinaryReader br) {
+         Clipnode node = new Clipnode();
+         node.planenum = br.ReadUInt32();
+         node.front    = br.ReadInt16();
+         node.back     = br.ReadInt16();
+         return node;
+      }
+   }
+
+   class Leaf {
+      int         type;
+      int         vislist;
+      BBoxshort   bound;
+      ushort      lface_id;
+      ushort      lface_num;
+      byte        sndwater;
+      byte        sndsky;
+      byte        sndslime;
+      byte        sndlava;
+      public static Leaf Read(BinaryReader br) {
+         Leaf leaf = new Leaf();
+         leaf.type      = br.ReadInt32();
+         leaf.vislist   = br.ReadInt32();
+         leaf.bound     = BBoxshort.Read(br);
+         leaf.lface_id  = br.ReadUInt16();
+         leaf.lface_num = br.ReadUInt16();
+         leaf.sndwater  = br.ReadByte();
+         leaf.sndsky    = br.ReadByte();
+         leaf.sndslime  = br.ReadByte();
+         leaf.sndlava   = br.ReadByte();
+         return leaf;
+      }
+   }
+
+   class Model {
+      Boundbox bound;
+      Vertex   origin;
+      int      node_id0;
+      int      node_id1;
+      int      node_id2;
+      int      node_id3;
+      int      numleafs;
+      int      face_id;
+      int      face_num;
+      public static Model Read(BinaryReader br) {
+         Model model    = new Model();
+         model.bound    = Boundbox.Read(br);
+         model.origin   = Vertex.Read(br);
+         model.node_id0 = br.ReadInt32();
+         model.node_id1 = br.ReadInt32();
+         model.node_id2 = br.ReadInt32();
+         model.node_id3 = br.ReadInt32();
+         model.numleafs = br.ReadInt32();
+         model.face_id  = br.ReadInt32();
+         model.face_num = br.ReadInt32();
+         return model;
+      }
+   }
+
    enum PlaneType {
       AxialPlaneInX,
       AxialPlaneInY,
@@ -165,6 +310,10 @@ namespace QuakeMapViewer {
       public uint offset2;
       public uint offset4;
       public uint offset8;
+      public byte[] texture1; // full size
+      public byte[] texture2; // 1/2  size
+      public byte[] texture4; // 1/4  size
+      public byte[] texture8; // 1/16 size
       public static Miptex Read(BinaryReader br) {
          Miptex miptex = new Miptex();
          var bytes = br.ReadBytes(16);
@@ -175,6 +324,10 @@ namespace QuakeMapViewer {
          miptex.offset2 = br.ReadUInt32();
          miptex.offset4 = br.ReadUInt32();
          miptex.offset8 = br.ReadUInt32();
+         miptex.texture1 = br.ReadBytes((int)(miptex.width*miptex.height));
+         miptex.texture2 = br.ReadBytes((int)(miptex.width*miptex.height)/4);
+         miptex.texture4 = br.ReadBytes((int)(miptex.width*miptex.height)/4);
+         miptex.texture8 = br.ReadBytes((int)(miptex.width*miptex.height)/4);
          return miptex;
       }
    }
