@@ -10,3 +10,4 @@
 10. bsp의 모든 정보 활용해서 렌더링
 11. texture animation
 12. multiple lightmap
+13. struct type 명 로딩 코드 오리지널 소스와 가깝게 변경
