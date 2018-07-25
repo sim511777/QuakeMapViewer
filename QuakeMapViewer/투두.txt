@@ -11,3 +11,4 @@
 11. texture animation
 12. multiple lightmap
 13. struct type 명 로딩 코드 오리지널 소스와 가깝게 변경
+14. 맵에디터 프로젝트 만들것
