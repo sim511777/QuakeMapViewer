@@ -4,9 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Drawing;
 
 namespace QuakeMapViewer {
    class Bsp {
+      public static Color[] palette;
+      public static int[] colorMap;
+      public static Color ColorMapColor(int idx) {
+         return Bsp.palette[Bsp.colorMap[idx]];
+      }
+      public static Color ColorMapColor(int palIdx, int brightness) {
+         int darkness = 15-brightness;
+         return Bsp.palette[Bsp.colorMap[darkness*256+palIdx]];
+      }
+
+      public static void LoadPalette() {
+         var bytes = File.ReadAllBytes("palette.lmp");
+         int palCnt = bytes.Length/3; 
+         Bsp.palette = Enumerable.Range(0, palCnt).Select(palIdx=>Color.FromArgb(bytes[palIdx*3], bytes[palIdx*3+1], bytes[palIdx*3+2])).ToArray();
+         Bsp.colorMap = File.ReadAllBytes("colormap.lmp").Take(64*256).Select(b=>(int)b).ToArray();
+      }
+
       public string     entities;    // List of Entities.
       public Plane[]    planes;      // Map Planes.
       public Mipheader  mipheader;   // Wall Textures.
@@ -326,10 +344,21 @@ namespace QuakeMapViewer {
          miptex.offset8  = br.ReadUInt32();
          miptex.texture1 = br.ReadBytes((int)(miptex.width*miptex.height));
          miptex.texture2 = br.ReadBytes((int)(miptex.width*miptex.height)/4);
-         miptex.texture4 = br.ReadBytes((int)(miptex.width*miptex.height)/4);
-         miptex.texture8 = br.ReadBytes((int)(miptex.width*miptex.height)/4);
+         miptex.texture4 = br.ReadBytes((int)(miptex.width*miptex.height)/16);
+         miptex.texture8 = br.ReadBytes((int)(miptex.width*miptex.height)/64);
          return miptex;
       }
+
+      //public static void SaveBitmap(byte[] bytes, uint width, uint height, string name) {
+      //   var bmp = new Bitmap((int)width, (int)height);
+      //   for (int y=0; y<height; y++) {
+      //      for (int x=0; x<width; x++) {
+      //         bmp.SetPixel(x, y, Bsp.palette[bytes[y*width+x]]);
+      //      }
+      //   }
+      //   bmp.Save(name.Replace("*", "#"));
+      //   bmp.Dispose();
+      //}
    }
 
    class Face {
