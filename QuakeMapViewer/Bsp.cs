@@ -7,22 +7,22 @@ using System.IO;
 
 namespace QuakeMapViewer {
    class Bsp {
-      public string entities; // List of Entities.
-      public Plane[] planes;   // Map Planes.
-      public Mipheader mipheader;   // Wall Textures.
-      public Miptex[] miptexs;
-      public Vertex[] vertices; // Map Vertices.
-      public byte[] visilist; // Leaves Visibility lists.
-      public Node[] nodes;    // BSP Nodes.
-      public Surface[] texinfo;  // Texture Info for faces.
-      public Face[] faces;    // Faces of each surface.
-      public byte[] lightmaps;// Wall Light Maps.
-      public Clipnode[] clipnodes;// clip nodes, for Models.
-      public Leaf[] leaves;   // BSP Leaves.
-      public ushort[] lface;    // List of Faces.
-      public Edge[] edges;    // Edges of faces.
-      public ushort[] ledges;   // List of Edges.
-      public Model[] models;   // List of Models.
+      public string     entities;    // List of Entities.
+      public Plane[]    planes;      // Map Planes.
+      public Mipheader  mipheader;   // Wall Textures.
+      public Miptex[]   miptexs;     // Wall TexturesData
+      public Vertex[]   vertices;    // Map Vertices.
+      public byte[]     visilist;    // Leaves Visibility lists.
+      public Node[]     nodes;       // BSP Nodes.
+      public Surface[]  texinfo;     // Texture Info for faces.
+      public Face[]     faces;       // Faces of each surface.
+      public byte[]     lightmaps;   // Wall Light Maps.
+      public Clipnode[] clipnodes;   // clip nodes, for Models.
+      public Leaf[]     leaves;      // BSP Leaves.
+      public ushort[]   lface;       // List of Faces.
+      public Edge[]     edges;       // Edges of faces.
+      public ushort[]   ledges;      // List of Edges.
+      public Model[]    models;      // List of Models.
 
       public static Bsp Read(byte[] buf) {
          using (var ms = new MemoryStream(buf))
@@ -76,7 +76,7 @@ namespace QuakeMapViewer {
       public int offset;
       public int size;
       public static Entry Read(BinaryReader br) {
-         Entry entry = new Entry();
+         Entry entry    = new Entry();
          entry.offset   = br.ReadInt32();
          entry.size     = br.ReadInt32();
          return entry;
@@ -166,12 +166,12 @@ namespace QuakeMapViewer {
    }
 
    class Node {
-      int      plane_id;
-      ushort   front;
-      ushort   back;
+      int       plane_id;
+      ushort    front;
+      ushort    back;
       BBoxshort box;
-      ushort   face_id;
-      ushort   face_num;
+      ushort    face_id;
+      ushort    face_num;
       public static Node Read(BinaryReader br) {
          Node node = new Node();
          node.plane_id  = br.ReadInt32();
@@ -204,7 +204,7 @@ namespace QuakeMapViewer {
    }
 
    class Clipnode {
-      uint planenum;
+      uint  planenum;
       short front;
       short back;
       public static Clipnode Read(BinaryReader br) {
@@ -276,25 +276,25 @@ namespace QuakeMapViewer {
    }
 
    class Plane {
-      public Vertex normal;
-      public float dist;
-      public PlaneType type;
+      public Vertex     normal;
+      public float      dist;
+      public PlaneType  type;
       public static Plane Read(BinaryReader br) {
-         Plane plane = new Plane();
-         plane.normal = Vertex.Read(br);
-         plane.dist = br.ReadSingle();
-         plane.type = (PlaneType)br.ReadInt32();
+         Plane plane    = new Plane();
+         plane.normal   = Vertex.Read(br);
+         plane.dist     = br.ReadSingle();
+         plane.type     = (PlaneType)br.ReadInt32();
          return plane;
       }
    }
 
    class Mipheader {
-      public int numtex;
-      public int[] offset;
+      public int    numtex;
+      public int[]  offset;
       public static Mipheader Read(BinaryReader br) {
-         Mipheader mipheader = new Mipheader();
-         mipheader.numtex = br.ReadInt32();
-         mipheader.offset = new Int32[mipheader.numtex];
+         Mipheader mipheader    = new Mipheader();
+         mipheader.numtex       = br.ReadInt32();
+         mipheader.offset       = new Int32[mipheader.numtex];
          for (int i=0; i<mipheader.numtex; i++) {
             mipheader.offset[i] = br.ReadInt32();
          }
@@ -304,26 +304,26 @@ namespace QuakeMapViewer {
 
    class Miptex {
       public string name;  // 16
-      public uint width;
-      public uint height;
-      public uint offset1;
-      public uint offset2;
-      public uint offset4;
-      public uint offset8;
+      public uint   width;
+      public uint   height;
+      public uint   offset1;
+      public uint   offset2;
+      public uint   offset4;
+      public uint   offset8;
       public byte[] texture1; // full size
       public byte[] texture2; // 1/2  size
       public byte[] texture4; // 1/4  size
       public byte[] texture8; // 1/16 size
       public static Miptex Read(BinaryReader br) {
-         Miptex miptex = new Miptex();
-         var bytes = br.ReadBytes(16);
-         miptex.name = Encoding.ASCII.GetString(bytes, 0, bytes.ToList().IndexOf(0));
-         miptex.width = br.ReadUInt32();
-         miptex.height = br.ReadUInt32();
-         miptex.offset1 = br.ReadUInt32();
-         miptex.offset2 = br.ReadUInt32();
-         miptex.offset4 = br.ReadUInt32();
-         miptex.offset8 = br.ReadUInt32();
+         Miptex miptex   = new Miptex();
+         var bytes       = br.ReadBytes(16);
+         miptex.name     = Encoding.ASCII.GetString(bytes, 0, bytes.ToList().IndexOf(0));
+         miptex.width    = br.ReadUInt32();
+         miptex.height   = br.ReadUInt32();
+         miptex.offset1  = br.ReadUInt32();
+         miptex.offset2  = br.ReadUInt32();
+         miptex.offset4  = br.ReadUInt32();
+         miptex.offset8  = br.ReadUInt32();
          miptex.texture1 = br.ReadBytes((int)(miptex.width*miptex.height));
          miptex.texture2 = br.ReadBytes((int)(miptex.width*miptex.height)/4);
          miptex.texture4 = br.ReadBytes((int)(miptex.width*miptex.height)/4);
@@ -363,9 +363,9 @@ namespace QuakeMapViewer {
       public ushort vertex0;
       public ushort vertex1;
       public static Edge Read(BinaryReader br) {
-         Edge edge   = new Edge();
-         edge.vertex0 = br.ReadUInt16();
-         edge.vertex1 = br.ReadUInt16();
+         Edge edge      = new Edge();
+         edge.vertex0   = br.ReadUInt16();
+         edge.vertex1   = br.ReadUInt16();
          return edge;
       }
    }
