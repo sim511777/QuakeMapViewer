@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using System.Drawing;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace QuakeMapViewer {
    class Bsp {
@@ -21,7 +22,7 @@ namespace QuakeMapViewer {
       public static void LoadPalette() {
          var bytes = File.ReadAllBytes("palette.lmp");
          int palCnt = bytes.Length/3; 
-         Bsp.palette = Enumerable.Range(0, palCnt).Select(palIdx=>Color.FromArgb(bytes[palIdx*3], bytes[palIdx*3+1], bytes[palIdx*3+2])).ToArray();
+         Bsp.palette = Enumerable.Range(0, palCnt).Select(palIdx=>Color.FromRgb(bytes[palIdx*3], bytes[palIdx*3+1], bytes[palIdx*3+2])).ToArray();
          Bsp.colorMap = File.ReadAllBytes("colormap.lmp").Take(64*256).Select(b=>(int)b).ToArray();
       }
 
