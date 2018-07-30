@@ -26,7 +26,7 @@ namespace QuakeMapViewer {
          Bsp.colorMap = File.ReadAllBytes("colormap.lmp").Take(64*256).Select(b=>(int)b).ToArray();
       }
 
-      public string     entities;    // List of Entities.
+      public Entity[]   entities;    // List of Entities.
       public Plane[]    planes;      // Map Planes.
       public Mipheader  mipheader;   // Wall Textures.
       public Miptex[]   miptexs;     // Wall TexturesData
@@ -40,7 +40,7 @@ namespace QuakeMapViewer {
       public Leaf[]     leaves;      // BSP Leaves.
       public ushort[]   lface;       // List of Faces.
       public Edge[]     edges;       // Edges of faces.
-      public ushort[]   ledges;      // List of Edges.
+      public int[]      ledges;      // List of Edges.
       public Model[]    models;      // List of Models.
 
       public static Bsp Read(byte[] buf) {
@@ -50,9 +50,7 @@ namespace QuakeMapViewer {
             
             Bsp bsp = new Bsp();
 
-            var entitiesBytes = ReadItems(br, header.entities, (b)=>b.ReadByte());
-            bsp.entities   = Encoding.ASCII.GetString(entitiesBytes, 0, entitiesBytes.ToList().IndexOf((byte)0));
-            
+            bsp.entities   = ReadItems(br, header.entities, (b)=>Entity.Read(b));
             bsp.planes     = ReadItems(br, header.planes,   (b)=>Plane.Read(b));
 
             br.BaseStream.Seek(header.miptex.offset, SeekOrigin.Begin);
@@ -73,9 +71,24 @@ namespace QuakeMapViewer {
             bsp.leaves     = ReadItems(br, header.leaves,   (b)=>Leaf.Read(b));
             bsp.lface      = ReadItems(br, header.lface,    (b)=>b.ReadUInt16());
             bsp.edges      = ReadItems(br, header.edges,    (b)=>Edge.Read(b));
-            bsp.ledges     = ReadItems(br, header.ledges,   (b)=>b.ReadUInt16());
+            bsp.ledges     = ReadItems(br, header.ledges,   (b)=>b.ReadInt32());
             bsp.models     = ReadItems(br, header.models,   (b)=>Model.Read(b));
-            
+            foreach (var face in bsp.faces) {
+               var ledgelist = bsp.ledges.Skip(face.ledge_id).Take(face.ledge_num);
+               List<int> indexes = new List<int>();
+               foreach (var ledge in ledgelist) {
+                  if (ledge>=0) {
+                     var edge = bsp.edges[ledge];
+                     indexes.Add(edge.vertex0);
+                     indexes.Add(edge.vertex1);
+                  } else {
+                     var edge = bsp.edges[-ledge];
+                     indexes.Add(edge.vertex1);
+                     indexes.Add(edge.vertex0);
+                  }
+               }
+               face.vindexes = indexes.ToArray();
+            }
             return bsp;
          }
       }
@@ -85,7 +98,8 @@ namespace QuakeMapViewer {
          var items = new List<T>();
          for (stream.Seek(entry.offset, SeekOrigin.Begin); stream.Position < entry.offset+entry.size;) {
             T item = itemReader(br);
-            items.Add(item);
+            if (item != null)
+               items.Add(item);
          }
          return items.ToArray();
       }
@@ -138,6 +152,43 @@ namespace QuakeMapViewer {
          header.ledges    = Entry.Read(br);
          header.models    = Entry.Read(br);
          return header;
+      }
+   }
+
+   class Entity {
+      public string classname;
+      public Dictionary<string, string> items = new Dictionary<string, string>();
+      public static Entity Read(BinaryReader br) {
+         StringBuilder buf = new StringBuilder();
+         while (true) {
+            try {
+               char ch = Convert.ToChar(br.ReadByte());
+               if (ch == '\0')
+                  return null;
+               if (ch == '{')
+                  continue;
+               if (ch == '}')
+                  break;
+               buf.Append(ch);
+            } catch {
+               break;
+            }
+         }
+         string text = buf.ToString();
+
+         Entity entity = new Entity();
+         var lines = text.Split(new char[]{'\n'}, StringSplitOptions.RemoveEmptyEntries);
+         foreach (var line in lines) {
+            int idx = line.IndexOf(' ');
+            string itemName = line.Substring(0, idx).Trim('"');
+            string itemValue = line.Substring(idx+1).Trim('"');
+            if (itemName == "classname") {
+               entity.classname = itemValue;
+            } else {
+               entity.items[itemName] = itemValue;
+            }
+         }
+         return entity;
       }
    }
 
@@ -373,6 +424,7 @@ namespace QuakeMapViewer {
       public byte   light0;
       public byte   light1;
       public int    lightmap;
+      public int[]  vindexes;
       public static Face Read(BinaryReader br) {
          Face face       = new Face();
          face.plane_id   = br.ReadUInt16();
