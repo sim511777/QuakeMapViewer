@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows;
 using System.Windows.Media.Media3D;
 
 namespace QuakeMapViewer {
@@ -28,11 +27,27 @@ namespace QuakeMapViewer {
          Bsp.colorMap = File.ReadAllBytes("colormap.lmp").Take(64*256).Select(b=>(int)b).ToArray();
       }
 
+      public static Material GetMaterial(Miptex miptex) {
+         byte[] bytes = miptex.texture1;
+         WriteableBitmap bmp = new WriteableBitmap(miptex.width, miptex.height, 96, 96, PixelFormats.Indexed8, Bsp.palette);
+         bmp.WritePixels(new Int32Rect(0, 0, miptex.width, miptex.height), miptex.texture1, miptex.width, 0);
+         return new DiffuseMaterial(new ImageBrush(bmp));
+      }
+
+      public static Vector3D Vector3DRead(BinaryReader br) {
+         Vector3D vertex = new Vector3D();
+         vertex.X = br.ReadSingle();
+         vertex.Y = br.ReadSingle();
+         vertex.Z = br.ReadSingle();
+         return vertex;
+      }
+
+
       public Entity[]   entities;    // List of Entities.
       public Plane[]    planes;      // Map Planes.
       public Mipheader  mipheader;   // Wall Textures.
       public Miptex[]   miptexs;     // Wall TexturesData
-      public Vertex[]   vertices;    // Map Vertices.
+      public Vector3D[] vertices;    // Map Vertices.
       public byte[]     visilist;    // Leaves Visibility lists.
       public Node[]     nodes;       // BSP Nodes.
       public Surface[]  texinfo;     // Texture Info for faces.
@@ -48,13 +63,6 @@ namespace QuakeMapViewer {
       public Material[] materials;   // texture
       public GeometryModel3D[] geoModels; // geo models
 
-      public static Material GetMaterial(Miptex miptex) {
-         byte[] bytes = miptex.texture1;
-         WriteableBitmap bmp = new WriteableBitmap(miptex.width, miptex.height, 96, 96, PixelFormats.Indexed8, Bsp.palette);
-         bmp.WritePixels(new Int32Rect(0, 0, miptex.width, miptex.height), miptex.texture1, miptex.width, 0);
-         return new DiffuseMaterial(new ImageBrush(bmp));
-      }
-
       public GeometryModel3D GetModel(Face face) {
          var ledgelist = this.ledges.Skip(face.ledge_id).Take(face.ledge_num);
          var vidxs = ledgelist
@@ -62,25 +70,25 @@ namespace QuakeMapViewer {
             .SelectMany((pair) => pair)
             .Where((vidx, i) => (i%2 == 0));
          
-         string str = string.Join("-", vidxs);
-
          MeshGeometry3D mesh = new MeshGeometry3D();
+         Surface texinfo = this.texinfo[face.texinfo_id];
          foreach (var vidx in vidxs) {
             var v = this.vertices[vidx];
-            mesh.Positions.Add(new Point3D(v.x, v.y, v.z));
+            mesh.Positions.Add((Point3D)v);
+            mesh.Normals.Add(this.planes[face.plane_id].normal);
+            Point st = new Point();
+            st.X = Vector3D.DotProduct(v, texinfo.vectorS) + texinfo.distS;
+            st.Y = Vector3D.DotProduct(v, texinfo.vectorT) + texinfo.distT;
+            mesh.TextureCoordinates.Add(st);
          }
+
          for (int i = 2; i<vidxs.Count(); i++) {
             mesh.TriangleIndices.Add(0);
             mesh.TriangleIndices.Add(i-1);
             mesh.TriangleIndices.Add(i);
          }
 
-         Surface texinfo = this.texinfo[face.texinfo_id];
-         // texture coord
-         // normal
-         
          var material = this.materials[texinfo.texture_id];
-
          return new GeometryModel3D(mesh, material);
       }
 
@@ -102,7 +110,7 @@ namespace QuakeMapViewer {
                bsp.miptexs[i] = Miptex.Read(br);
             }
             
-            bsp.vertices   = ReadItems(br, header.vertices, (b)=>Vertex.Read(b));
+            bsp.vertices   = ReadItems(br, header.vertices, (b)=>Vector3DRead(b));
             bsp.visilist   = ReadItems(br, header.visilist, (b)=>b.ReadByte());
             bsp.nodes      = ReadItems(br, header.nodes,    (b)=>Node.Read(b));
             bsp.texinfo    = ReadItems(br, header.texinfo,  (b)=>Surface.Read(b));
@@ -221,26 +229,13 @@ namespace QuakeMapViewer {
       }
    }
 
-   class Vertex {
-      public float x;
-      public float y;
-      public float z;
-      public static Vertex Read(BinaryReader br) {
-         Vertex vertex = new Vertex();
-         vertex.x = br.ReadSingle();
-         vertex.y = br.ReadSingle();
-         vertex.z = br.ReadSingle();
-         return vertex;
-      }
-   }
-
    class Boundbox {
-      Vertex min;
-      Vertex max;
+      public Vector3D min;
+      public Vector3D max;
       public static Boundbox Read(BinaryReader br) {
          Boundbox box = new Boundbox();
-         box.min = Vertex.Read(br);
-         box.max = Vertex.Read(br);
+         box.min = Bsp.Vector3DRead(br);
+         box.max = Bsp.Vector3DRead(br);
          return box;
       }
    }
@@ -284,17 +279,17 @@ namespace QuakeMapViewer {
    }
 
    class Surface {
-      public Vertex   vectorS;
-      public float    distS;
-      public Vertex   vectorT;
-      public float    distT;
+      public Vector3D vectorS;
+      public double   distS;
+      public Vector3D vectorT;
+      public double   distT;
       public uint     texture_id;
       public uint     animated;
       public static Surface Read(BinaryReader br) {
          Surface surface      = new Surface();
-         surface.vectorS      = Vertex.Read(br);
+         surface.vectorS      = Bsp.Vector3DRead(br);
          surface.distS        = br.ReadSingle();
-         surface.vectorT      = Vertex.Read(br);
+         surface.vectorT      = Bsp.Vector3DRead(br);
          surface.distT        = br.ReadSingle();
          surface.texture_id   = br.ReadUInt32();
          surface.animated     = br.ReadUInt32();
@@ -342,7 +337,7 @@ namespace QuakeMapViewer {
 
    class Model {
       public Boundbox bound;
-      public Vertex   origin;
+      public Vector3D origin;
       public int      node_id0;
       public int      node_id1;
       public int      node_id2;
@@ -353,7 +348,7 @@ namespace QuakeMapViewer {
       public static Model Read(BinaryReader br) {
          Model model    = new Model();
          model.bound    = Boundbox.Read(br);
-         model.origin   = Vertex.Read(br);
+         model.origin   = Bsp.Vector3DRead(br);
          model.node_id0 = br.ReadInt32();
          model.node_id1 = br.ReadInt32();
          model.node_id2 = br.ReadInt32();
@@ -375,12 +370,12 @@ namespace QuakeMapViewer {
    }
 
    class Plane {
-      public Vertex     normal;
-      public float      dist;
+      public Vector3D   normal;
+      public double     dist;
       public PlaneType  type;
       public static Plane Read(BinaryReader br) {
          Plane plane    = new Plane();
-         plane.normal   = Vertex.Read(br);
+         plane.normal   = Bsp.Vector3DRead(br);
          plane.dist     = br.ReadSingle();
          plane.type     = (PlaneType)br.ReadInt32();
          return plane;

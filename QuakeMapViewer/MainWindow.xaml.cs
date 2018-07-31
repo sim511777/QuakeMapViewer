@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using Microsoft.Win32;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
 namespace QuakeMapViewer {
@@ -27,29 +28,45 @@ namespace QuakeMapViewer {
       }
 
       private Bsp bsp = null;
-      private Model3DGroup modelGroup;
 
       private void LoadFile(string filePath) {
          var buf = File.ReadAllBytes(filePath);
          this.bsp = Bsp.Read(buf);
       }
 
+      Point3D camPos = new Point3D();
+      double camYaw = 0;
+      double camPitch = 0;
+
       private void LoadCamera() {
-         var infostart = this.bsp.entities.FirstOrDefault((entity)=>entity.classname == "info_player_start");
-         var words = infostart.items["origin"].Split(' ');
+         try {
+            var infostart = this.bsp.entities.FirstOrDefault((entity) => entity.classname == "info_player_start");
+            var words = infostart.items["origin"].Split(' ');
+            PerspectiveCamera camera = new PerspectiveCamera();
+            camPos = new Point3D(double.Parse(words[0]), double.Parse(words[1]), double.Parse(words[2]));
+            camYaw = double.Parse(infostart.items["angle"]) * Math.PI * 2 / 360;
+            camPitch = 0;
+         } catch {
+            camPos = new Point3D(0, 0, 0);
+            camYaw = 0;
+            camPitch = 0;
+         }
+      }
+
+      private void UpdateCamera() {
          PerspectiveCamera camera = new PerspectiveCamera();
-         camera.Position = new Point3D(double.Parse(words[0]), double.Parse(words[1]), double.Parse(words[2]));
-         double angle = double.Parse(infostart.items["angle"]) * Math.PI * 2 / 360;
-         camera.LookDirection = new Vector3D(Math.Cos(angle), Math.Sin(angle), 0);
+         camera.Position = camPos;
+         camera.LookDirection = new Vector3D(Math.Cos(camPitch)*Math.Cos(camYaw), Math.Cos(camPitch)*Math.Sin(camYaw), Math.Sin(camPitch));
          camera.UpDirection = new Vector3D(0, 0, 1);
          this.view.Camera = camera;
-
       }
 
       private void LoadMap() {
-         GeometryModel3D model = new GeometryModel3D();
          Model3DGroup modelGroup = new Model3DGroup();
-         modelGroup.Children.Add(model);
+         foreach (var model in this.bsp.geoModels)
+            modelGroup.Children.Add(model);
+         AmbientLight alit = new AmbientLight(Colors.White);
+         modelGroup.Children.Add(alit);
          ModelVisual3D visual = new ModelVisual3D();
          visual.Content = modelGroup;
          this.view.Children.Add(visual);
@@ -62,7 +79,36 @@ namespace QuakeMapViewer {
 
          this.LoadFile(dlg.FileName);
          this.LoadCamera();
+         this.UpdateCamera();
          this.LoadMap();
+      }
+
+      bool mlb = false;
+      Point oldPt = new Point(0, 0);
+      private void view_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
+         mlb = true;
+         oldPt = e.GetPosition(this.view);
+      }
+
+      private void view_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
+         mlb = false;
+      }
+
+      private void view_MouseMove(object sender, MouseEventArgs e) {
+         if (!mlb)
+            return;
+
+         var newPt = e.GetPosition(this.view);
+         var diff = newPt-oldPt;
+         oldPt = newPt;
+
+         this.camPitch -= diff.Y * 0.001;
+         if (this.camPitch > Math.PI / 2)
+            this.camPitch = Math.PI / 2;
+         if (this.camPitch < -Math.PI / 2)
+            this.camPitch = -Math.PI / 2;
+         this.camYaw -= diff.X * 0.001;
+         UpdateCamera();
       }
    }
 }
