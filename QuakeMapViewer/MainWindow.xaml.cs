@@ -42,17 +42,22 @@ namespace QuakeMapViewer {
          if (!this.viewFocus)
             return;
 
-         double angleSpeed = 0.005;
+         double keyAngleSpeed = 0.05;
+         if (Keyboard.IsKeyDown(Key.Right))  this.camYaw    -= keyAngleSpeed;
+         if (Keyboard.IsKeyDown(Key.Left))   this.camYaw    += keyAngleSpeed;
+         if (Keyboard.IsKeyDown(Key.Up))     this.camPitch  += keyAngleSpeed;
+         if (Keyboard.IsKeyDown(Key.Down))   this.camPitch  -= keyAngleSpeed;
          
-         var diff = ScreenMouse.Position-clickPt;
-         ScreenMouse.Position = clickPt;
+         var diff = ScreenMouse.Position-viewCenterPt;
+         ScreenMouse.Position = viewCenterPt;
 
-         this.camPitch -= diff.Y * angleSpeed;
+         double mouseAngleSPeed = 0.005;
+         this.camPitch -= diff.Y * mouseAngleSPeed;
          if (this.camPitch > Math.PI / 2 -0.01)
             this.camPitch = Math.PI / 2 -0.01;
          if (this.camPitch < -Math.PI / 2 +0.01)
             this.camPitch = -Math.PI / 2 +0.01;
-         this.camYaw -= diff.X * angleSpeed;
+         this.camYaw -= diff.X * mouseAngleSPeed;
 
          double moveSpeed = 10;
          Vector3D vMove = new Vector3D(0,0,0);
@@ -115,6 +120,8 @@ namespace QuakeMapViewer {
          modelGroup.Children.Add(alit);
          ModelVisual3D visual = new ModelVisual3D();
          visual.Content = modelGroup;
+
+         this.view.Children.Clear();
          this.view.Children.Add(visual);
       }
 
@@ -130,15 +137,17 @@ namespace QuakeMapViewer {
       }
 
       bool viewFocus = false;
-      Point clickPt = new Point(0,0);
+      Point viewCenterPt = new Point(0,0);
       private void view_MouseDown(object sender, MouseButtonEventArgs e) {
-         if (viewFocus == false) {
-            viewFocus = true;
-            this.Cursor = Cursors.None;
-            clickPt = ScreenMouse.Position;
-         } else {
+         viewFocus = true;
+         this.Cursor = Cursors.None;
+         this.viewCenterPt = ScreenMouse.Position;
+      }
+
+      private void Window_KeyDown(object sender, KeyEventArgs e) {
+         if (e.Key == Key.Escape) {
             viewFocus = false;
-            this.Cursor = Cursors.Arrow;
+            this.Cursor = Cursors.Arrow; 
          }
       }
    }
