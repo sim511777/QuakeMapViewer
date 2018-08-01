@@ -16,18 +16,55 @@ using System.IO;
 using Microsoft.Win32;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using System.Windows.Threading;
 
 namespace QuakeMapViewer {
    /// <summary>
    /// MainWindow.xaml에 대한 상호 작용 논리
    /// </summary>
    public partial class MainWindow : Window {
+      private DispatcherTimer timer;
+      private Bsp bsp = null;
+
       public MainWindow() {
          InitializeComponent();
          Bsp.LoadPalette();
+         TimerStart();
       }
 
-      private Bsp bsp = null;
+      private void TimerStart() {
+         timer = new DispatcherTimer();
+         timer.Interval = TimeSpan.FromMilliseconds(16.7);
+         timer.Tick += timer_Tick;
+         timer.Start();
+      }
+
+      private void timer_Tick(object sender, EventArgs e) {
+         double speed = 10;
+         Vector3D vMove = new Vector3D();
+         if (Keyboard.IsKeyDown(Key.Right)) {
+            vMove.X += 1;
+            camPos.X += speed;
+         }
+         if (Keyboard.IsKeyDown(Key.Left)) {
+            vMove.X -= 1;
+            camPos.X -= speed;
+         }
+         if (Keyboard.IsKeyDown(Key.Up)) {
+            vMove.Y += 1;
+            camPos.Y += speed;
+         }
+         if (Keyboard.IsKeyDown(Key.Down)) {
+            vMove.Y -= 1;
+            camPos.Y -= speed;
+         }
+         vMove.Normalize();
+         vMove = vMove * speed;
+         Vector3D vLook = new Vector3D(Math.Cos(camPitch)*Math.Cos(camYaw), Math.Cos(camPitch)*Math.Sin(camYaw), Math.Sin(camPitch));
+
+         //camPos += vMove + ;
+         UpdateCamera();
+      }
 
       private void LoadFile(string filePath) {
          var buf = File.ReadAllBytes(filePath);
@@ -88,10 +125,12 @@ namespace QuakeMapViewer {
       private void view_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
          mlb = true;
          oldPt = e.GetPosition(this.view);
+         this.view.CaptureMouse();
       }
 
       private void view_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
          mlb = false;
+         this.view.ReleaseMouseCapture();
       }
 
       private void view_MouseMove(object sender, MouseEventArgs e) {
@@ -102,12 +141,13 @@ namespace QuakeMapViewer {
          var diff = newPt-oldPt;
          oldPt = newPt;
 
-         this.camPitch -= diff.Y * 0.001;
+         double angleSpeed = 0.005;
+         this.camPitch -= diff.Y * angleSpeed;
          if (this.camPitch > Math.PI / 2)
             this.camPitch = Math.PI / 2;
          if (this.camPitch < -Math.PI / 2)
             this.camPitch = -Math.PI / 2;
-         this.camYaw -= diff.X * 0.001;
+         this.camYaw -= diff.X * angleSpeed;
          UpdateCamera();
       }
    }

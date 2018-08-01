@@ -18,6 +18,9 @@
 18. 생성된 버텍스 마다 lightmap 좌표 생성
 
 카메라 이동
+ ok - async keyinput
+ - look vector move vector composition
+마우스 Move시 좌표 고정 할것
 텍스쳐 좌표
 Visvility
 라이트맵
