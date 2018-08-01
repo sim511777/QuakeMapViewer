@@ -8,7 +8,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Drawing;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -40,31 +39,39 @@ namespace QuakeMapViewer {
       }
 
       private void timer_Tick(object sender, EventArgs e) {
-         double speed = 10;
-         Vector3D vMove = new Vector3D(0,0,0);
-         if (Keyboard.IsKeyDown(Key.Right)) {
-            vMove.X += 1;
-         }
-         if (Keyboard.IsKeyDown(Key.Left)) {
-            vMove.X -= 1;
-         }
-         if (Keyboard.IsKeyDown(Key.Up)) {
-            vMove.Y += 1;
-         }
-         if (Keyboard.IsKeyDown(Key.Down)) {
-            vMove.Y -= 1;
-         }
-         if (vMove.Length == 0)
+         if (!this.view.IsFocused)
             return;
-         vMove.Normalize();
-         vMove = vMove * speed;
-         PerspectiveCamera cam = this.view.Camera as PerspectiveCamera;
-         var vLook = cam.LookDirection;
-         var vUp = cam.UpDirection;
-         var vRight = Vector3D.CrossProduct(vLook, vUp);
-         vRight.Normalize();
-         var vMove2 = vLook * vMove.Y + vRight * vMove.X;
-         this.camPos += vMove2;
+
+         double angleSpeed = 0.005;
+         
+         var newPt = ScreenMouse.Position;
+         var diff = newPt-oldPt;
+         ScreenMouse.Position = newPt;
+
+         this.camPitch -= diff.Y * angleSpeed;
+         if (this.camPitch > Math.PI / 2)
+            this.camPitch = Math.PI / 2;
+         if (this.camPitch < -Math.PI / 2)
+            this.camPitch = -Math.PI / 2;
+         this.camYaw -= diff.X * angleSpeed;
+
+         double moveSpeed = 10;
+         Vector3D vMove = new Vector3D(0,0,0);
+         if (Keyboard.IsKeyDown(Key.Right))  vMove.X += 1;
+         if (Keyboard.IsKeyDown(Key.Left))   vMove.X -= 1;
+         if (Keyboard.IsKeyDown(Key.Up))     vMove.Y += 1;
+         if (Keyboard.IsKeyDown(Key.Down))   vMove.Y -= 1;
+         if (vMove.Length != 0) {
+            vMove.Normalize();
+            vMove = vMove * moveSpeed;
+            PerspectiveCamera cam = this.view.Camera as PerspectiveCamera;
+            var vLook = cam.LookDirection;
+            var vUp = cam.UpDirection;
+            var vRight = Vector3D.CrossProduct(vLook, vUp);
+            vRight.Normalize();
+            var vMove2 = vLook * vMove.Y + vRight * vMove.X;
+            this.camPos += vMove2;
+         }
 
          UpdateCamera();
       }
@@ -122,35 +129,22 @@ namespace QuakeMapViewer {
          this.LoadMap();
       }
 
-      bool mlb = false;
-      Point oldPt = new Point(0, 0);
-      private void view_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-         mlb = true;
-         oldPt = e.GetPosition(this.view);
-         this.view.CaptureMouse();
+      Point oldPt = new Point(0,0);
+      private void view_GotFocus(object sender, RoutedEventArgs e) {
+         oldPt = ScreenMouse.Position;
+         this.Cursor = Cursors.Cross;
       }
 
-      private void view_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
-         mlb = false;
-         this.view.ReleaseMouseCapture();
+      private void view_LostFocus(object sender, RoutedEventArgs e) {
+         this.Cursor = Cursors.Arrow;
       }
 
-      private void view_MouseMove(object sender, MouseEventArgs e) {
-         if (!mlb)
-            return;
+      private void Window_GotFocus(object sender, RoutedEventArgs e) {
 
-         var newPt = e.GetPosition(this.view);
-         var diff = newPt-oldPt;
-         oldPt = newPt;
+      }
 
-         double angleSpeed = 0.005;
-         this.camPitch -= diff.Y * angleSpeed;
-         if (this.camPitch > Math.PI / 2)
-            this.camPitch = Math.PI / 2;
-         if (this.camPitch < -Math.PI / 2)
-            this.camPitch = -Math.PI / 2;
-         this.camYaw -= diff.X * angleSpeed;
-         UpdateCamera();
+      private void Window_LostFocus(object sender, RoutedEventArgs e) {
+
       }
    }
 }

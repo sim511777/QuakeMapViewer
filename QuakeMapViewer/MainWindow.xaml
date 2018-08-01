@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuakeMapViewer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" GotFocus="Window_GotFocus" LostFocus="Window_LostFocus">
     <Grid>
       <Grid.ColumnDefinitions>
          <ColumnDefinition Width="200"></ColumnDefinition>
          <ColumnDefinition/>
       </Grid.ColumnDefinitions>
       <Button x:Name="btnLoad" Grid.Column="0" Content="Load" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="btnLoad_Click"/>
-      <Viewport3D x:Name="view" Grid.Column="1" VerticalAlignment="Stretch" MouseMove="view_MouseMove" MouseLeftButtonDown="view_MouseLeftButtonDown" MouseLeftButtonUp="view_MouseLeftButtonUp"/>
+      <Viewport3D x:Name="view" Grid.Column="1" VerticalAlignment="Stretch" GotFocus="view_GotFocus" LostFocus="view_LostFocus"/>
    </Grid>
 </Window>
