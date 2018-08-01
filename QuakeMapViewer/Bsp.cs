@@ -28,6 +28,8 @@ namespace QuakeMapViewer {
       }
 
       public static Material GetMaterial(Miptex miptex) {
+         if (miptex == null)
+            return null;
          byte[] bytes = miptex.texture1;
          WriteableBitmap bmp = new WriteableBitmap(miptex.width, miptex.height, 96, 96, PixelFormats.Indexed8, Bsp.palette);
          bmp.WritePixels(new Int32Rect(0, 0, miptex.width, miptex.height), miptex.texture1, miptex.width, 0);
@@ -106,6 +108,8 @@ namespace QuakeMapViewer {
             bsp.mipheader  = Mipheader.Read(br);
             bsp.miptexs    = new Miptex[bsp.mipheader.numtex];
             for (int i=0; i<bsp.miptexs.Length; i++) {
+               if (bsp.mipheader.offset[i]==-1)
+                  continue;
                br.BaseStream.Seek(header.miptex.offset+bsp.mipheader.offset[i], SeekOrigin.Begin);
                bsp.miptexs[i] = Miptex.Read(br);
             }
