@@ -83,9 +83,9 @@ namespace QuakeMapViewer {
          }
 
          for (int i = 2; i<vidxs.Count(); i++) {
-            mesh.TriangleIndices.Add(0);
-            mesh.TriangleIndices.Add(i-1);
             mesh.TriangleIndices.Add(i);
+            mesh.TriangleIndices.Add(i-1);
+            mesh.TriangleIndices.Add(0);
          }
 
          var material = this.materials[texinfo.texture_id];

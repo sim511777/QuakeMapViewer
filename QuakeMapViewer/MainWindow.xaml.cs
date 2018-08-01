@@ -39,28 +39,27 @@ namespace QuakeMapViewer {
       }
 
       private void timer_Tick(object sender, EventArgs e) {
-         if (!this.view.IsFocused)
+         if (!this.viewFocus)
             return;
 
          double angleSpeed = 0.005;
          
-         var newPt = ScreenMouse.Position;
-         var diff = newPt-oldPt;
-         ScreenMouse.Position = newPt;
+         var diff = ScreenMouse.Position-clickPt;
+         ScreenMouse.Position = clickPt;
 
          this.camPitch -= diff.Y * angleSpeed;
-         if (this.camPitch > Math.PI / 2)
-            this.camPitch = Math.PI / 2;
-         if (this.camPitch < -Math.PI / 2)
-            this.camPitch = -Math.PI / 2;
+         if (this.camPitch > Math.PI / 2 -0.01)
+            this.camPitch = Math.PI / 2 -0.01;
+         if (this.camPitch < -Math.PI / 2 +0.01)
+            this.camPitch = -Math.PI / 2 +0.01;
          this.camYaw -= diff.X * angleSpeed;
 
          double moveSpeed = 10;
          Vector3D vMove = new Vector3D(0,0,0);
-         if (Keyboard.IsKeyDown(Key.Right))  vMove.X += 1;
-         if (Keyboard.IsKeyDown(Key.Left))   vMove.X -= 1;
-         if (Keyboard.IsKeyDown(Key.Up))     vMove.Y += 1;
-         if (Keyboard.IsKeyDown(Key.Down))   vMove.Y -= 1;
+         if (Keyboard.IsKeyDown(Key.D))   vMove.X += 1;
+         if (Keyboard.IsKeyDown(Key.A))   vMove.X -= 1;
+         if (Keyboard.IsKeyDown(Key.W))   vMove.Y += 1;
+         if (Keyboard.IsKeyDown(Key.S))   vMove.Y -= 1;
          if (vMove.Length != 0) {
             vMove.Normalize();
             vMove = vMove * moveSpeed;
@@ -104,6 +103,7 @@ namespace QuakeMapViewer {
          camera.Position = camPos;
          camera.LookDirection = new Vector3D(Math.Cos(camPitch)*Math.Cos(camYaw), Math.Cos(camPitch)*Math.Sin(camYaw), Math.Sin(camPitch));
          camera.UpDirection = new Vector3D(0, 0, 1);
+         camera.FieldOfView = 90;
          this.view.Camera = camera;
       }
 
@@ -129,22 +129,17 @@ namespace QuakeMapViewer {
          this.LoadMap();
       }
 
-      Point oldPt = new Point(0,0);
-      private void view_GotFocus(object sender, RoutedEventArgs e) {
-         oldPt = ScreenMouse.Position;
-         this.Cursor = Cursors.Cross;
-      }
-
-      private void view_LostFocus(object sender, RoutedEventArgs e) {
-         this.Cursor = Cursors.Arrow;
-      }
-
-      private void Window_GotFocus(object sender, RoutedEventArgs e) {
-
-      }
-
-      private void Window_LostFocus(object sender, RoutedEventArgs e) {
-
+      bool viewFocus = false;
+      Point clickPt = new Point(0,0);
+      private void view_MouseDown(object sender, MouseButtonEventArgs e) {
+         if (viewFocus == false) {
+            viewFocus = true;
+            this.Cursor = Cursors.None;
+            clickPt = ScreenMouse.Position;
+         } else {
+            viewFocus = false;
+            this.Cursor = Cursors.Arrow;
+         }
       }
    }
 }
