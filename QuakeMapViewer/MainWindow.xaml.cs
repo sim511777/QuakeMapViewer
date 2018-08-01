@@ -33,33 +33,41 @@ namespace QuakeMapViewer {
 
       private void TimerStart() {
          timer = new DispatcherTimer();
-         timer.Interval = TimeSpan.FromMilliseconds(16.7);
+         timer.Interval = TimeSpan.FromMilliseconds(5);
          timer.Tick += timer_Tick;
          timer.Start();
       }
+
+      double keyAngleSpeed = 5;
+      double mouseAngleSPeed = 0.5;
+      double moveSpeed = 500;
 
       private void timer_Tick(object sender, EventArgs e) {
          if (!this.viewFocus)
             return;
 
-         double keyAngleSpeed = 0.05;
-         if (Keyboard.IsKeyDown(Key.Right))  this.camYaw    -= keyAngleSpeed;
-         if (Keyboard.IsKeyDown(Key.Left))   this.camYaw    += keyAngleSpeed;
-         if (Keyboard.IsKeyDown(Key.Up))     this.camPitch  += keyAngleSpeed;
-         if (Keyboard.IsKeyDown(Key.Down))   this.camPitch  -= keyAngleSpeed;
+         DateTime timeNow = DateTime.Now;
+         TimeSpan timeSpan = timeNow - timeOld;
+         timeOld = timeNow;
+         double dTime = timeSpan.TotalSeconds;
+         double fps = 1/dTime;
+         this.lblFps.Content = $"{fps:0.}";
+
+         if (Keyboard.IsKeyDown(Key.Right))  this.camYaw    -= keyAngleSpeed * dTime;
+         if (Keyboard.IsKeyDown(Key.Left))   this.camYaw    += keyAngleSpeed * dTime;
+         if (Keyboard.IsKeyDown(Key.Up))     this.camPitch  += keyAngleSpeed * dTime;
+         if (Keyboard.IsKeyDown(Key.Down))   this.camPitch  -= keyAngleSpeed * dTime;
          
          var diff = ScreenMouse.Position-viewCenterPt;
          ScreenMouse.Position = viewCenterPt;
 
-         double mouseAngleSPeed = 0.005;
-         this.camPitch -= diff.Y * mouseAngleSPeed;
+         this.camPitch -= diff.Y * mouseAngleSPeed * dTime;
          if (this.camPitch > Math.PI / 2 -0.01)
             this.camPitch = Math.PI / 2 -0.01;
          if (this.camPitch < -Math.PI / 2 +0.01)
             this.camPitch = -Math.PI / 2 +0.01;
-         this.camYaw -= diff.X * mouseAngleSPeed;
+         this.camYaw -= diff.X * mouseAngleSPeed * dTime;
 
-         double moveSpeed = 10;
          Vector3D vMove = new Vector3D(0,0,0);
          if (Keyboard.IsKeyDown(Key.D))   vMove.X += 1;
          if (Keyboard.IsKeyDown(Key.A))   vMove.X -= 1;
@@ -67,7 +75,7 @@ namespace QuakeMapViewer {
          if (Keyboard.IsKeyDown(Key.S))   vMove.Y -= 1;
          if (vMove.Length != 0) {
             vMove.Normalize();
-            vMove = vMove * moveSpeed;
+            vMove = vMove * moveSpeed * dTime;
             PerspectiveCamera cam = this.view.Camera as PerspectiveCamera;
             var vLook = cam.LookDirection;
             var vUp = cam.UpDirection;
@@ -138,10 +146,12 @@ namespace QuakeMapViewer {
 
       bool viewFocus = false;
       Point viewCenterPt = new Point(0,0);
+      DateTime timeOld;
       private void view_MouseDown(object sender, MouseButtonEventArgs e) {
          viewFocus = true;
          this.Cursor = Cursors.None;
          this.viewCenterPt = ScreenMouse.Position;
+         timeOld = DateTime.Now;
       }
 
       private void Window_KeyDown(object sender, KeyEventArgs e) {
