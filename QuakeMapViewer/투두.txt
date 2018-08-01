@@ -10,3 +10,14 @@
 10. bsp의 모든 정보 활용해서 렌더링
 11. texture animation
 12. multiple lightmap
+13. struct type 명 로딩 코드 오리지널 소스와 가깝게 변경
+14. 툼레이더 맵 로딩 추가
+15. 맵에디터 프로젝트 만들것
+16. 페이스마다 버텍스 리슽 생성
+17. 생성된 버텍스 마다 miptexture 좌표 생성
+18. 생성된 버텍스 마다 lightmap 좌표 생성
+
+카메라 이동
+텍스쳐 좌표
+Visvility
+라이트맵
