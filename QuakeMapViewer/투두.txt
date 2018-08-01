@@ -19,8 +19,12 @@
 
 카메라 이동
  ok - async keyinput
- - look vector move vector composition
-마우스 Move시 좌표 고정 할것
+ ok - look vector move vector composition
 텍스쳐 좌표
 Visvility
 라이트맵
+
+view 포커스 되면 마우스 고정
+esc누르면 포커스 해제
+view 포커스 상태에서 마우스 비동기 처리
+view 포커스 상태에서 키보드 비동기 처리

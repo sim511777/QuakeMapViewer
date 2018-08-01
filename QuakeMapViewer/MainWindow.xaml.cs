@@ -41,28 +41,31 @@ namespace QuakeMapViewer {
 
       private void timer_Tick(object sender, EventArgs e) {
          double speed = 10;
-         Vector3D vMove = new Vector3D();
+         Vector3D vMove = new Vector3D(0,0,0);
          if (Keyboard.IsKeyDown(Key.Right)) {
             vMove.X += 1;
-            camPos.X += speed;
          }
          if (Keyboard.IsKeyDown(Key.Left)) {
             vMove.X -= 1;
-            camPos.X -= speed;
          }
          if (Keyboard.IsKeyDown(Key.Up)) {
             vMove.Y += 1;
-            camPos.Y += speed;
          }
          if (Keyboard.IsKeyDown(Key.Down)) {
             vMove.Y -= 1;
-            camPos.Y -= speed;
          }
+         if (vMove.Length == 0)
+            return;
          vMove.Normalize();
          vMove = vMove * speed;
-         Vector3D vLook = new Vector3D(Math.Cos(camPitch)*Math.Cos(camYaw), Math.Cos(camPitch)*Math.Sin(camYaw), Math.Sin(camPitch));
+         PerspectiveCamera cam = this.view.Camera as PerspectiveCamera;
+         var vLook = cam.LookDirection;
+         var vUp = cam.UpDirection;
+         var vRight = Vector3D.CrossProduct(vLook, vUp);
+         vRight.Normalize();
+         var vMove2 = vLook * vMove.Y + vRight * vMove.X;
+         this.camPos += vMove2;
 
-         //camPos += vMove + ;
          UpdateCamera();
       }
 
@@ -79,7 +82,6 @@ namespace QuakeMapViewer {
          try {
             var infostart = this.bsp.entities.FirstOrDefault((entity) => entity.classname == "info_player_start");
             var words = infostart.items["origin"].Split(' ');
-            PerspectiveCamera camera = new PerspectiveCamera();
             camPos = new Point3D(double.Parse(words[0]), double.Parse(words[1]), double.Parse(words[2]));
             camYaw = double.Parse(infostart.items["angle"]) * Math.PI * 2 / 360;
             camPitch = 0;
