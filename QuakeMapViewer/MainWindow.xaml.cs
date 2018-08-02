@@ -22,24 +22,16 @@ namespace QuakeMapViewer {
    /// MainWindow.xaml에 대한 상호 작용 논리
    /// </summary>
    public partial class MainWindow : Window {
-      private DispatcherTimer timer;
       private Bsp bsp = null;
 
       public MainWindow() {
          InitializeComponent();
          Bsp.LoadPalette();
-         TimerStart();
-      }
-
-      private void TimerStart() {
-         timer = new DispatcherTimer();
-         timer.Interval = TimeSpan.FromMilliseconds(5);
-         timer.Tick += timer_Tick;
-         timer.Start();
+         CompositionTarget.Rendering += CompositionTarget_Rendering;
       }
 
       double keyAngleSpeed = 5;
-      double mouseAngleSPeed = 0.5;
+      double mouseAngleSPeed = 0.02;
       double moveSpeed = 500;
 
       private void LoadFile(string filePath) {
@@ -62,15 +54,6 @@ namespace QuakeMapViewer {
             camYaw = 0;
             camPitch = 0;
          }
-      }
-
-      private void UpdateCamera() {
-         PerspectiveCamera camera = new PerspectiveCamera();
-         camera.Position = camPos;
-         camera.LookDirection = new Vector3D(Math.Cos(camPitch)*Math.Cos(camYaw), Math.Cos(camPitch)*Math.Sin(camYaw), Math.Sin(camPitch));
-         camera.UpDirection = new Vector3D(0, 0, 1);
-         camera.FieldOfView = 90;
-         this.view.Camera = camera;
       }
 
       private void LoadMap() {
@@ -127,6 +110,19 @@ namespace QuakeMapViewer {
          }
       }
 
+      private void UpdateScene() {
+
+      }
+
+      private void UpdateCamera() {
+         PerspectiveCamera camera = new PerspectiveCamera();
+         camera.Position = camPos;
+         camera.LookDirection = new Vector3D(Math.Cos(camPitch)*Math.Cos(camYaw), Math.Cos(camPitch)*Math.Sin(camYaw), Math.Sin(camPitch));
+         camera.UpDirection = new Vector3D(0, 0, 1);
+         camera.FieldOfView = 90;
+         this.view.Camera = camera;
+      }
+
       private void btnLoad_Click(object sender, RoutedEventArgs e) {
          OpenFileDialog dlg = new OpenFileDialog();
          if (dlg.ShowDialog(this) == false)
@@ -135,7 +131,16 @@ namespace QuakeMapViewer {
          this.LoadFile(dlg.FileName);
          this.LoadMap();
          this.LoadCamera();
-         this.UpdateCamera();
+      }
+
+      private void CompositionTarget_Rendering(object sender, EventArgs e) {
+         if (this.viewFocus) {
+            ProcessInput();
+         }
+
+         UpdateScene();
+         UpdateCamera();
+         
       }
 
       bool viewFocus = false;
@@ -153,14 +158,6 @@ namespace QuakeMapViewer {
             viewFocus = false;
             this.Cursor = Cursors.Arrow; 
          }
-      }
-
-      private void timer_Tick(object sender, EventArgs e) {
-         if (!this.viewFocus)
-            return;
-         
-         ProcessInput();
-         UpdateCamera();
       }
    }
 }
