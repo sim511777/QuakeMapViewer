@@ -23,10 +23,16 @@ namespace QuakeMapViewer {
    /// </summary>
    public partial class MainWindow : Window {
       private Bsp bsp = null;
+      private Model3DGroup modelGroup;
 
       public MainWindow() {
          InitializeComponent();
          Bsp.LoadPalette();
+
+         this.modelGroup = new Model3DGroup();
+         ModelVisual3D visual = new ModelVisual3D();
+         visual.Content = this.modelGroup;
+         this.view.Children.Add(visual);
          CompositionTarget.Rendering += CompositionTarget_Rendering;
       }
 
@@ -37,6 +43,7 @@ namespace QuakeMapViewer {
       private void LoadFile(string filePath) {
          var buf = File.ReadAllBytes(filePath);
          this.bsp = Bsp.Read(buf);
+         this.UpdateScene();
       }
 
       Point3D camPos = new Point3D();
@@ -54,19 +61,6 @@ namespace QuakeMapViewer {
             camYaw = 0;
             camPitch = 0;
          }
-      }
-
-      private void LoadMap() {
-         Model3DGroup modelGroup = new Model3DGroup();
-         foreach (var model in this.bsp.geoModels)
-            modelGroup.Children.Add(model);
-         modelGroup.Children.Add(new AmbientLight(Color.FromRgb(255,255,255)));
-
-         ModelVisual3D visual = new ModelVisual3D();
-         visual.Content = modelGroup;
-
-         this.view.Children.Clear();
-         this.view.Children.Add(visual);
       }
 
       private void ProcessInput() {
@@ -111,7 +105,13 @@ namespace QuakeMapViewer {
       }
 
       private void UpdateScene() {
-
+         this.modelGroup.Children.Clear();
+         if (this.bsp == null)
+            return;
+         var count = this.bsp.geoModels.Length;
+         foreach (var model in this.bsp.geoModels.Take(count/10))
+            modelGroup.Children.Add(model);
+         modelGroup.Children.Add(new AmbientLight(Color.FromRgb(255,255,255)));
       }
 
       private void UpdateCamera() {
@@ -129,7 +129,6 @@ namespace QuakeMapViewer {
             return;
 
          this.LoadFile(dlg.FileName);
-         this.LoadMap();
          this.LoadCamera();
       }
 
@@ -138,9 +137,8 @@ namespace QuakeMapViewer {
             ProcessInput();
          }
 
-         UpdateScene();
+         //UpdateScene();
          UpdateCamera();
-         
       }
 
       bool viewFocus = false;
