@@ -93,6 +93,8 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Resources\colormap.lmp" />
+    <None Include="Resources\palette.lmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

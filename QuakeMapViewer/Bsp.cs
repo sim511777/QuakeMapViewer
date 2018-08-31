@@ -21,10 +21,10 @@ namespace QuakeMapViewer {
       }
 
       public static void LoadPalette() {
-         var bytes = File.ReadAllBytes("palette.lmp");
+         var bytes = Properties.Resources.palette;
          int palCnt = bytes.Length/3;
          Bsp.palette = new BitmapPalette(Enumerable.Range(0, palCnt).Select(palIdx=>Color.FromRgb(bytes[palIdx*3], bytes[palIdx*3+1], bytes[palIdx*3+2])).ToList());
-         Bsp.colorMap = File.ReadAllBytes("colormap.lmp").Take(64*256).Select(b=>(int)b).ToArray();
+         Bsp.colorMap = Properties.Resources.colormap.Take(64*256).Select(b=>(int)b).ToArray();
       }
 
       public static Material GetMaterial(Miptex miptex) {

@@ -37,7 +37,7 @@ namespace QuakeMapViewer {
       }
 
       double keyAngleSpeed = 5;
-      double mouseAngleSPeed = 0.02;
+      double mouseAngleSPeed = 0.1;
       double moveSpeed = 500;
 
       private void LoadFile(string filePath) {
@@ -109,7 +109,7 @@ namespace QuakeMapViewer {
          if (this.bsp == null)
             return;
          var count = this.bsp.geoModels.Length;
-         foreach (var model in this.bsp.geoModels.Take(count/10))
+         foreach (var model in this.bsp.geoModels)
             modelGroup.Children.Add(model);
          modelGroup.Children.Add(new AmbientLight(Color.FromRgb(255,255,255)));
       }
