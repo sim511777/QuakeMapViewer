@@ -5,6 +5,12 @@ VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeMapViewer", "QuakeMapViewer\QuakeMapViewer.csproj", "{7DD466A7-6383-4F15-A2DD-939F8C2FF95D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6A708BD8-0CC9-473A-8DA0-F18360BF7FD5}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\Quake Specs v3.4.html = Docs\Quake Specs v3.4.html
+		Docs\투두.txt = Docs\투두.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

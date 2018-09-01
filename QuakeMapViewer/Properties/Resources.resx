@@ -121,6 +121,9 @@
   <data name="colormap" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\colormap.lmp;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="e1m1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\e1m1.bsp;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="palette" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\palette.lmp;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

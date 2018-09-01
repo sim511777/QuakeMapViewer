@@ -132,6 +132,13 @@ namespace QuakeMapViewer {
          this.LoadCamera();
       }
 
+      private void btnE1m1_Click(object sender, RoutedEventArgs e) {
+         var buf = Properties.Resources.e1m1;
+         this.bsp = Bsp.Read(buf);
+         this.UpdateScene();
+         this.LoadCamera();
+      }
+
       private void CompositionTarget_Rendering(object sender, EventArgs e) {
          if (this.viewFocus) {
             ProcessInput();

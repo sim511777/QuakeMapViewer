@@ -13,6 +13,7 @@
       </Grid.ColumnDefinitions>
       <Button x:Name="btnLoad" Grid.Column="0" Content="Load" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="btnLoad_Click"/>
       <Viewport3D x:Name="view" Grid.Column="1" VerticalAlignment="Stretch" MouseDown="view_MouseDown"/>
-      <Label x:Name="lblFps" Content="FPS" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top"/>
+      <Label x:Name="lblFps" Content="FPS" HorizontalAlignment="Left" Margin="10,60,0,0" VerticalAlignment="Top"/>
+      <Button x:Name="btnE1m1" Content="e1m1" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="75" Click="btnE1m1_Click"/>
    </Grid>
 </Window>
