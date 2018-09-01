@@ -69,7 +69,7 @@ namespace QuakeMapViewer {
          timeOld = timeNow;
          double dTime = timeSpan.TotalSeconds;
          double fps = 1/dTime;
-         this.lblFps.Content = $"{fps:0.}";
+         this.lblFps.Content = $"FPS:{fps:0.}";
 
          if (Keyboard.IsKeyDown(Key.Right))  this.camYaw    -= keyAngleSpeed * dTime;
          if (Keyboard.IsKeyDown(Key.Left))   this.camYaw    += keyAngleSpeed * dTime;

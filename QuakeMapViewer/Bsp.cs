@@ -27,15 +27,6 @@ namespace QuakeMapViewer {
          Bsp.colorMap = Properties.Resources.colormap.Take(64*256).Select(b=>(int)b).ToArray();
       }
 
-      public static Material GetMaterial(Miptex miptex) {
-         if (miptex == null)
-            return null;
-         byte[] bytes = miptex.texture1;
-         WriteableBitmap bmp = new WriteableBitmap(miptex.width, miptex.height, 96, 96, PixelFormats.Indexed8, Bsp.palette);
-         bmp.WritePixels(new Int32Rect(0, 0, miptex.width, miptex.height), miptex.texture1, miptex.width, 0);
-         return new DiffuseMaterial(new ImageBrush(bmp));
-      }
-
       public static Vector3D Vector3DRead(BinaryReader br) {
          Vector3D vertex = new Vector3D();
          vertex.X = br.ReadSingle();
@@ -62,8 +53,21 @@ namespace QuakeMapViewer {
       public int[]      ledges;      // List of Edges.
       public Model[]    models;      // List of Models.
 
-      public Material[] materials;   // texture
+      public DiffuseMaterial[] materials;   // texture
       public GeometryModel3D[] geoModels; // geo models
+
+      public static DiffuseMaterial GetMaterial(Miptex miptex) {
+         if (miptex == null)
+            return null;
+         byte[] bytes = miptex.texture1;
+         WriteableBitmap bmp = new WriteableBitmap(miptex.width, miptex.height, 96, 96, PixelFormats.Indexed8, Bsp.palette);
+         bmp.WritePixels(new Int32Rect(0, 0, miptex.width, miptex.height), miptex.texture1, miptex.width, 0);
+         var brush = new ImageBrush(bmp);
+         brush.TileMode = TileMode.Tile;
+         brush.ViewportUnits = BrushMappingMode.Absolute;
+         var material = new DiffuseMaterial(brush);
+         return material;
+      }
 
       public GeometryModel3D GetModel(Face face) {
          var ledgelist = this.ledges.Skip(face.ledge_id).Take(face.ledge_num);
@@ -72,15 +76,20 @@ namespace QuakeMapViewer {
             .SelectMany((pair) => pair)
             .Where((vidx, i) => (i%2 == 0));
          
-         MeshGeometry3D mesh = new MeshGeometry3D();
          Surface texinfo = this.texinfo[face.texinfo_id];
+         var material = this.materials[texinfo.texture_id];
+         var imageBrush = material.Brush as ImageBrush;
+         var tw = imageBrush.ImageSource.Width;
+         var th = imageBrush.ImageSource.Height;
+         
+         MeshGeometry3D mesh = new MeshGeometry3D();
          foreach (var vidx in vidxs) {
             var v = this.vertices[vidx];
             mesh.Positions.Add((Point3D)v);
             mesh.Normals.Add(this.planes[face.plane_id].normal);
             Point st = new Point();
-            st.X = Vector3D.DotProduct(v, texinfo.vectorS) + texinfo.distS;
-            st.Y = Vector3D.DotProduct(v, texinfo.vectorT) + texinfo.distT;
+            st.X = (Vector3D.DotProduct(v, texinfo.vectorS) + texinfo.distS) / tw;
+            st.Y = (Vector3D.DotProduct(v, texinfo.vectorT) + texinfo.distT) / th;
             mesh.TextureCoordinates.Add(st);
          }
 
@@ -90,7 +99,6 @@ namespace QuakeMapViewer {
             mesh.TriangleIndices.Add(0);
          }
 
-         var material = this.materials[texinfo.texture_id];
          return new GeometryModel3D(mesh, material);
       }
 
