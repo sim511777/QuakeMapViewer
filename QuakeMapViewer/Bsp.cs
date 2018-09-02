@@ -69,7 +69,7 @@ namespace QuakeMapViewer {
          return material;
       }
 
-      public GeometryModel3D GetModel(Face face) {
+      public GeometryModel3D GetModel(Face face, bool textureOrLightmap) {
          var ledgelist = this.ledges.Skip(face.ledge_id).Take(face.ledge_num);
          var vidxs = ledgelist
             .Select((ledge) => (ledge >= 0) ? new int[] {this.edges[ledge].vertex0, this.edges[ledge].vertex1} : new int[] {this.edges[-ledge].vertex1, this.edges[-ledge].vertex0 })
@@ -81,16 +81,21 @@ namespace QuakeMapViewer {
          var imageBrush = material.Brush as ImageBrush;
          var tw = imageBrush.ImageSource.Width;
          var th = imageBrush.ImageSource.Height;
-         
+
          MeshGeometry3D mesh = new MeshGeometry3D();
          foreach (var vidx in vidxs) {
             var v = this.vertices[vidx];
             mesh.Positions.Add((Point3D)v);
             mesh.Normals.Add(this.planes[face.plane_id].normal);
-            Point st = new Point();
-            st.X = (Vector3D.DotProduct(v, texinfo.vectorS) + texinfo.distS) / tw;
-            st.Y = (Vector3D.DotProduct(v, texinfo.vectorT) + texinfo.distT) / th;
-            mesh.TextureCoordinates.Add(st);
+            
+            if (textureOrLightmap) {
+               Point st = new Point();
+               st.X = (Vector3D.DotProduct(v, texinfo.vectorS) + texinfo.distS) / tw;
+               st.Y = (Vector3D.DotProduct(v, texinfo.vectorT) + texinfo.distT) / th;
+               mesh.TextureCoordinates.Add(st); 
+            } else {
+
+            }
          }
 
          for (int i = 2; i<vidxs.Count(); i++) {
@@ -102,7 +107,7 @@ namespace QuakeMapViewer {
          return new GeometryModel3D(mesh, material);
       }
 
-      public static Bsp Read(byte[] buf) {
+      public static Bsp Read(byte[] buf, bool textureOrLightmap) {
          using (var ms = new MemoryStream(buf))
          using (var br = new BinaryReader(ms)) {
             Header header = Header.Read(br);
@@ -135,8 +140,8 @@ namespace QuakeMapViewer {
             bsp.ledges     = ReadItems(br, header.ledges,   (b)=>b.ReadInt32());
             bsp.models     = ReadItems(br, header.models,   (b)=>Model.Read(b));
 
-            bsp.materials  = bsp.miptexs.Select((mip) => GetMaterial(mip)).ToArray();
-            bsp.geoModels  = bsp.faces.Select((face) => bsp.GetModel(face)).ToArray();
+            bsp.materials  = bsp.miptexs.Select((mip) => GetMaterial(mip)).ToArray();            
+            bsp.geoModels  = bsp.faces.Select((face) => bsp.GetModel(face, textureOrLightmap)).ToArray();
 
             return bsp;
          }

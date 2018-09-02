@@ -42,7 +42,7 @@ namespace QuakeMapViewer {
 
       private void LoadFile(string filePath) {
          var buf = File.ReadAllBytes(filePath);
-         this.bsp = Bsp.Read(buf);
+         this.bsp = Bsp.Read(buf, (bool)this.rdoTexture.IsChecked);
          this.UpdateScene();
       }
 
@@ -134,7 +134,7 @@ namespace QuakeMapViewer {
 
       private void btnE1m1_Click(object sender, RoutedEventArgs e) {
          var buf = Properties.Resources.e1m1;
-         this.bsp = Bsp.Read(buf);
+         this.bsp = Bsp.Read(buf, (bool)this.rdoTexture.IsChecked);
          this.UpdateScene();
          this.LoadCamera();
       }
