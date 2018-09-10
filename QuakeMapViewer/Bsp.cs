@@ -10,21 +10,23 @@ using System.Windows.Media.Media3D;
 
 namespace QuakeMapViewer {
    class Bsp {
-      public static BitmapPalette palette;
+      public static BitmapPalette colorPalette;
+      public static BitmapPalette grayPalette;
       public static int[] colorMap;
       public static Color ColorMapColor(int idx) {
-         return Bsp.palette.Colors[Bsp.colorMap[idx]];
+         return Bsp.colorPalette.Colors[Bsp.colorMap[idx]];
       }
       public static Color ColorMapColor(int palIdx, int brightness) {
          int darkness = 15-brightness;
-         return Bsp.palette.Colors[Bsp.colorMap[darkness*256+palIdx]];
+         return Bsp.colorPalette.Colors[Bsp.colorMap[darkness*256+palIdx]];
       }
 
       public static void LoadPalette() {
          var bytes = Properties.Resources.palette;
          int palCnt = bytes.Length/3;
-         Bsp.palette = new BitmapPalette(Enumerable.Range(0, palCnt).Select(palIdx=>Color.FromRgb(bytes[palIdx*3], bytes[palIdx*3+1], bytes[palIdx*3+2])).ToList());
+         Bsp.colorPalette = new BitmapPalette(Enumerable.Range(0, palCnt).Select(palIdx=>Color.FromRgb(bytes[palIdx*3], bytes[palIdx*3+1], bytes[palIdx*3+2])).ToList());
          Bsp.colorMap = Properties.Resources.colormap.Take(64*256).Select(b=>(int)b).ToArray();
+         Bsp.grayPalette = new BitmapPalette(Enumerable.Range(0, 256).Select(val=>Color.FromRgb((byte)val,(byte)val,(byte)val)).ToList());
       }
 
       public static Vector3D Vector3DRead(BinaryReader br) {
@@ -43,7 +45,7 @@ namespace QuakeMapViewer {
       public Vector3D[] vertices;    // Map Vertices.
       public byte[]     visilist;    // Leaves Visibility lists.
       public Node[]     nodes;       // BSP Nodes.
-      public Surface[]  texinfo;     // Texture Info for faces.
+      public TexInfo[]  texinfo;     // Texture Info for faces.
       public Face[]     faces;       // Faces of each surface.
       public byte[]     lightmaps;   // Wall Light Maps.
       public Clipnode[] clipnodes;   // clip nodes, for Models.
@@ -60,7 +62,7 @@ namespace QuakeMapViewer {
          if (miptex == null)
             return null;
          byte[] bytes = miptex.texture1;
-         WriteableBitmap bmp = new WriteableBitmap(miptex.width, miptex.height, 96, 96, PixelFormats.Indexed8, Bsp.palette);
+         WriteableBitmap bmp = new WriteableBitmap(miptex.width, miptex.height, 96, 96, PixelFormats.Indexed8, Bsp.colorPalette);
          bmp.WritePixels(new Int32Rect(0, 0, miptex.width, miptex.height), miptex.texture1, miptex.width, 0);
          var brush = new ImageBrush(bmp);
          brush.TileMode = TileMode.Tile;
@@ -76,7 +78,7 @@ namespace QuakeMapViewer {
             .SelectMany((pair) => pair)
             .Where((vidx, i) => (i%2 == 0));
          
-         Surface texinfo = this.texinfo[face.texinfo_id];
+         TexInfo texinfo = this.texinfo[face.texinfo_id];
          var material = this.materials[texinfo.texture_id];
          var imageBrush = material.Brush as ImageBrush;
          var tw = imageBrush.ImageSource.Width;
@@ -130,7 +132,7 @@ namespace QuakeMapViewer {
             bsp.vertices   = ReadItems(br, header.vertices, (b)=>Vector3DRead(b));
             bsp.visilist   = ReadItems(br, header.visilist, (b)=>b.ReadByte());
             bsp.nodes      = ReadItems(br, header.nodes,    (b)=>Node.Read(b));
-            bsp.texinfo    = ReadItems(br, header.texinfo,  (b)=>Surface.Read(b));
+            bsp.texinfo    = ReadItems(br, header.texinfo,  (b)=>TexInfo.Read(b));
             bsp.faces      = ReadItems(br, header.faces,    (b)=>Face.Read(b));
             bsp.lightmaps  = ReadItems(br, header.lightmaps,(b)=>b.ReadByte());
             bsp.clipnodes  = ReadItems(br, header.clipnodes,(b)=>Clipnode.Read(b));
@@ -295,15 +297,15 @@ namespace QuakeMapViewer {
       }
    }
 
-   class Surface {
+   class TexInfo {
       public Vector3D vectorS;
       public double   distS;
       public Vector3D vectorT;
       public double   distT;
       public uint     texture_id;
       public uint     animated;
-      public static Surface Read(BinaryReader br) {
-         Surface surface      = new Surface();
+      public static TexInfo Read(BinaryReader br) {
+         TexInfo surface      = new TexInfo();
          surface.vectorS      = Bsp.Vector3DRead(br);
          surface.distS        = br.ReadSingle();
          surface.vectorT      = Bsp.Vector3DRead(br);
