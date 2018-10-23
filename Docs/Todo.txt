@@ -1,38 +1,8 @@
-﻿1. miptextrue 로드 코드 추가 사항 확인
-2. lightmap 어떻게 쓰는지 확인
-3. indexbuffer 어떻게 되는지 확인, edge, face, plane
-4. miptexture 팔레트 어떻게 쓰는지 확인
-5. 렌더링
-6. lightmap 적용
-7. bsp visibility 적용
-8. 모델 로딩
-9. .pak에서 로딩
-10. bsp의 모든 정보 활용해서 렌더링
-11. texture animation
-12. multiple lightmap
-13. struct type 명 로딩 코드 오리지널 소스와 가깝게 변경
-14. 툼레이더 맵 로딩 추가
-15. 맵에디터 프로젝트 만들것
-16. 페이스마다 버텍스 리슽 생성
-17. 생성된 버텍스 마다 miptexture 좌표 생성
-18. 생성된 버텍스 마다 lightmap 좌표 생성
-
-카메라 이동
- ok - async keyinput
- ok - look vector move vector composition
-텍스쳐 좌표
-Visvility
-라이트맵
-
-view 포커스 되면 마우스 고정
-esc누르면 포커스 해제
-view 포커스 상태에서 마우스 비동기 처리
-view 포커스 상태에서 키보드 비동기 처리
-
-==================
-라이트맵 텍스쳐 좌표
-라이트맵 버퍼
-멀티 텍스쳐 방법 (텍스쳐와 라이트맵 블렌딩 방법)
-SlimDX 로 컨버젼
-SlimDX 패널에서 렝더링 방법
-Quake2 맵 로딩
+﻿lightmap texture 로드
+lightmap coord 로드
+transparent texture
+animated texture
+morphing texture
+slimdx 컨버젼
+bsp visibility
+tomb raider 맵 로딩
