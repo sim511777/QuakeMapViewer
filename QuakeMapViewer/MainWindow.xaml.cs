@@ -40,12 +40,6 @@ namespace QuakeMapViewer {
       double mouseAngleSPeed = 0.1;
       double moveSpeed = 500;
 
-      private void LoadFile(string filePath) {
-         var buf = File.ReadAllBytes(filePath);
-         this.bsp = Bsp.Read(buf, (bool)this.rdoTexture.IsChecked);
-         this.UpdateScene();
-      }
-
       Point3D camPos = new Point3D();
       double camYaw = 0;
       double camPitch = 0;
@@ -128,12 +122,16 @@ namespace QuakeMapViewer {
          if (dlg.ShowDialog(this) == false)
             return;
 
-         this.LoadFile(dlg.FileName);
-         this.LoadCamera();
+         var buf = File.ReadAllBytes(dlg.FileName);
+         this.LoadBsp(buf);
       }
 
       private void btnE1m1_Click(object sender, RoutedEventArgs e) {
          var buf = Properties.Resources.e1m1;
+         this.LoadBsp(buf);
+      }
+
+      private void LoadBsp(byte[] buf) {
          this.bsp = Bsp.Read(buf, (bool)this.rdoTexture.IsChecked);
          this.UpdateScene();
          this.LoadCamera();
