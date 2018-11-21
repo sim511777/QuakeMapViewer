@@ -58,14 +58,7 @@ namespace QuakeMapViewer {
          }
       }
 
-      private void ProcessInput() {
-         DateTime timeNow = DateTime.Now;
-         TimeSpan timeSpan = timeNow - timeOld;
-         timeOld = timeNow;
-         double dTime = timeSpan.TotalSeconds;
-         double fps = 1/dTime;
-         this.lblFps.Content = $"FPS:{fps:0.}";
-
+      private void ProcessInput(double dTime) {
          if (Keyboard.IsKeyDown(Key.Right))  this.camYaw    -= keyAngleSpeed * dTime;
          if (Keyboard.IsKeyDown(Key.Left))   this.camYaw    += keyAngleSpeed * dTime;
          if (Keyboard.IsKeyDown(Key.Up))     this.camPitch  += keyAngleSpeed * dTime;
@@ -99,15 +92,36 @@ namespace QuakeMapViewer {
          }
       }
 
-      private void UpdateScene() {
+      private void UpdateScene(bool novis = false) {
          this.modelGroup.Children.Clear();
+
+         modelGroup.Children.Add(this.ambientLight);
          
          if (this.bsp == null)
             return;
 
-         foreach (var model in this.bsp.geoModels)
-            modelGroup.Children.Add(model);
-         modelGroup.Children.Add(this.ambientLight);
+         if (novis) {
+            foreach (var geoModel in this.bsp.geoModels)
+               this.modelGroup.Children.Add(geoModel);
+         } else {
+         }
+      }
+
+      private int GetCurrCluster() {
+         int iNode = 0;
+
+         while (true) {
+            var plane = this.bsp.planes[this.bsp.nodes[iNode].plane_id];
+            var dist = Vector3D.DotProduct((Vector3D)this.camPos, plane.normal) + plane.dist;
+            iNode = (dist > 0.0f) ? this.bsp.nodes[iNode].front : this.bsp.nodes[iNode].back;
+            if (iNode < 0)
+               return this.bsp.leaves[-iNode - 1].vislist;
+         }
+      }
+
+      bool IsClusterVisible(int currCluster, int chkCluster) {
+         byte vis = this.bsp.visilist[(currCluster * this.bsp.visilist.Length) + (chkCluster >> 3)];
+         return (vis & (1 << (chkCluster & 7))) != 0;
       }
 
       private void UpdateCamera() {
@@ -135,16 +149,22 @@ namespace QuakeMapViewer {
 
       private void LoadBsp(byte[] buf) {
          this.bsp = Bsp.Read(buf, (bool)this.rdoTexture.IsChecked);
-         this.UpdateScene();
          this.LoadCamera();
       }
 
       private void CompositionTarget_Rendering(object sender, EventArgs e) {
+         DateTime timeNow = DateTime.Now;
+         TimeSpan timeSpan = timeNow - timeOld;
+         timeOld = timeNow;
+         double dTime = timeSpan.TotalSeconds;
+         double fps = 1/dTime;
+         this.tbkFps.Text = $"FPS:{fps:0.}";
+
          if (this.viewFocus) {
-            ProcessInput();
+            ProcessInput(dTime);
          }
 
-         //UpdateScene();
+         UpdateScene(this.chkNoVis.IsChecked == true);
          UpdateCamera();
       }
 
