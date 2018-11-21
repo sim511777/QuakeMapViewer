@@ -23,6 +23,7 @@ namespace QuakeMapViewer {
    /// </summary>
    public partial class MainWindow : Window {
       private Bsp bsp = null;
+      private AmbientLight ambientLight = new AmbientLight(Color.FromRgb(255,255,255));
       private Model3DGroup modelGroup;
 
       public MainWindow() {
@@ -100,12 +101,13 @@ namespace QuakeMapViewer {
 
       private void UpdateScene() {
          this.modelGroup.Children.Clear();
+         
          if (this.bsp == null)
             return;
-         var count = this.bsp.geoModels.Length;
+
          foreach (var model in this.bsp.geoModels)
             modelGroup.Children.Add(model);
-         modelGroup.Children.Add(new AmbientLight(Color.FromRgb(255,255,255)));
+         modelGroup.Children.Add(this.ambientLight);
       }
 
       private void UpdateCamera() {
