@@ -92,36 +92,62 @@ namespace QuakeMapViewer {
          }
       }
 
-      private void UpdateScene(bool novis = false) {
-         this.modelGroup.Children.Clear();
+      private void UpdateScene(bool novis) {
+         var models = new Model3DCollection();
+         models.Add(this.ambientLight);
 
-         modelGroup.Children.Add(this.ambientLight);
-         
          if (this.bsp == null)
             return;
 
          if (novis) {
             foreach (var geoModel in this.bsp.geoModels)
-               this.modelGroup.Children.Add(geoModel);
+               models.Add(geoModel);
          } else {
+            int curVis = 0;
+            int leafNum = 0;
+            int faceNum = 0;
+            int v = GetCurrVis().vis;
+            curVis = v;
+            for (int L = 1; L < this.bsp.leaves.Length; v++) {
+               if (this.bsp.vislist[v] == 0) {
+                  L += 8 * this.bsp.vislist[v + 1];
+                  v++;
+               } else {
+                  for (int bit = 1; bit != 0; bit = bit * 2, L++) {
+                     if ((this.bsp.vislist[v] & bit) != 0) {
+                        var leaf = this.bsp.leaves[L];
+                        if (leaf.vis == -1)
+                           continue;
+                        leafNum++;
+                        for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
+                           faceNum++;
+                           models.Add(this.bsp.geoModels[faceId]);
+                        }
+                     }
+                  }
+               }
+            }
+            this.tbkVis.Text = $"vis: {curVis}, leaf: {leafNum}, face: {faceNum}";
          }
+
+         this.modelGroup.Children = models;
       }
 
-      private int GetCurrCluster() {
-         int iNode = 0;
+      private Leaf GetCurrVis() {
+         short iNode = 0;
 
          while (true) {
             var plane = this.bsp.planes[this.bsp.nodes[iNode].plane_id];
             var dist = Vector3D.DotProduct((Vector3D)this.camPos, plane.normal) + plane.dist;
-            iNode = (dist > 0.0f) ? this.bsp.nodes[iNode].front : this.bsp.nodes[iNode].back;
+            iNode = (dist > 0.0f) ? (short)this.bsp.nodes[iNode].front : (short)this.bsp.nodes[iNode].back;
             if (iNode < 0)
-               return this.bsp.leaves[-iNode - 1].vislist;
+               return this.bsp.leaves[-iNode - 1];
          }
       }
 
-      bool IsClusterVisible(int currCluster, int chkCluster) {
-         byte vis = this.bsp.visilist[(currCluster * this.bsp.visilist.Length) + (chkCluster >> 3)];
-         return (vis & (1 << (chkCluster & 7))) != 0;
+      bool IsVisVisible(int currVis, int chkVis) {
+         byte vis = this.bsp.vislist[(currVis * this.bsp.vislist.Length) + (chkVis >> 3)];
+         return (vis & (1 << (chkVis & 7))) != 0;
       }
 
       private void UpdateCamera() {
@@ -164,7 +190,7 @@ namespace QuakeMapViewer {
             ProcessInput(dTime);
          }
 
-         UpdateScene(this.chkNoVis.IsChecked == true);
+         UpdateScene((bool)this.chkNoVis.IsChecked);
          UpdateCamera();
       }
 

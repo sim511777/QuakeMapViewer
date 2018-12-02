@@ -43,7 +43,7 @@ namespace QuakeMapViewer {
         public Mipheader mipheader;   // Wall Textures.
         public Miptex[] miptexs;     // Wall TexturesData
         public Vector3D[] vertices;    // Map Vertices.
-        public byte[] visilist;    // Leaves Visibility lists.
+        public byte[] vislist;    // Leaves Visibility lists.
         public Node[] nodes;       // BSP Nodes.
         public TexInfo[] texinfo;     // Texture Info for faces.
         public Face[] faces;       // Faces of each surface.
@@ -185,7 +185,7 @@ namespace QuakeMapViewer {
                 }
 
                 bsp.vertices = ReadItems(br, header.vertices, (b) => Vector3DRead(b));
-                bsp.visilist = ReadItems(br, header.visilist, (b) => b.ReadByte());
+                bsp.vislist = ReadItems(br, header.visilist, (b) => b.ReadByte());
                 bsp.nodes = ReadItems(br, header.nodes, (b) => Node.Read(b));
                 bsp.texinfo = ReadItems(br, header.texinfo, (b) => TexInfo.Read(b));
                 bsp.faces = ReadItems(br, header.faces, (b) => Face.Read(b));
@@ -386,7 +386,7 @@ namespace QuakeMapViewer {
 
     class Leaf {
         public int type;
-        public int vislist;
+        public int vis;
         public BBoxshort bound;
         public ushort lface_id;
         public ushort lface_num;
@@ -397,7 +397,7 @@ namespace QuakeMapViewer {
         public static Leaf Read(BinaryReader br) {
             Leaf leaf = new Leaf();
             leaf.type = br.ReadInt32();
-            leaf.vislist = br.ReadInt32();
+            leaf.vis = br.ReadInt32();
             leaf.bound = BBoxshort.Read(br);
             leaf.lface_id = br.ReadUInt16();
             leaf.lface_num = br.ReadUInt16();
