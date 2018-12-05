@@ -100,24 +100,27 @@ namespace QuakeMapViewer {
             return;
 
          if (novis) {
+				int curVis = GetCurrLeaf().visOffset;
+            int leafNum = 0;
+            int faceNum = 0;
+            this.tbkVis.Text = $"vis: {curVis}, leaf: {leafNum}, face: {faceNum}";
+
             foreach (var geoModel in this.bsp.geoModels)
                models.Add(geoModel);
          } else {
-            int curVis = 0;
+            int curVis = GetCurrLeaf().visOffset;
             int leafNum = 0;
             int faceNum = 0;
-            int v = GetCurrVis().vis;
-            curVis = v;
-            for (int L = 1; L < this.bsp.leaves.Length; v++) {
-               if (this.bsp.vislist[v] == 0) {
-                  L += 8 * this.bsp.vislist[v + 1];
-                  v++;
+            this.tbkVis.Text = $"vis: {curVis}, leaf: {leafNum}, face: {faceNum}";
+
+            for (int L = 1; L < this.bsp.leaves.Length; curVis++) {
+               if (this.bsp.vislist[curVis] == 0) {
+                  L += 8 * this.bsp.vislist[curVis + 1];
+                  curVis++;
                } else {
                   for (int bit = 1; bit != 0; bit = bit * 2, L++) {
-                     if ((this.bsp.vislist[v] & bit) != 0) {
+                     if ((this.bsp.vislist[curVis] & bit) != 0) {
                         var leaf = this.bsp.leaves[L];
-                        if (leaf.vis == -1)
-                           continue;
                         leafNum++;
                         for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
                            faceNum++;
@@ -127,19 +130,21 @@ namespace QuakeMapViewer {
                   }
                }
             }
-            this.tbkVis.Text = $"vis: {curVis}, leaf: {leafNum}, face: {faceNum}";
          }
 
          this.modelGroup.Children = models;
       }
 
-      private Leaf GetCurrVis() {
-         short iNode = 0;
-
+      private Leaf GetCurrLeaf() {
+		   short iNode = 0;
          while (true) {
-            var plane = this.bsp.planes[this.bsp.nodes[iNode].plane_id];
-            var dist = Vector3D.DotProduct((Vector3D)this.camPos, plane.normal) + plane.dist;
-            iNode = (dist > 0.0f) ? (short)this.bsp.nodes[iNode].front : (short)this.bsp.nodes[iNode].back;
+				var node = this.bsp.nodes[iNode];
+            var plane = this.bsp.planes[node.plane_id];
+            var dist = Vector3D.DotProduct((Vector3D)this.camPos, plane.normal) - plane.dist;
+            if (dist > 0.0f)
+					iNode = node.front;
+				else
+					iNode = node.back;
             if (iNode < 0)
                return this.bsp.leaves[-iNode - 1];
          }

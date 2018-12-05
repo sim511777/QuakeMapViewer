@@ -335,16 +335,16 @@ namespace QuakeMapViewer {
 
     class Node {
         public int plane_id;
-        public ushort front;
-        public ushort back;
+        public short front;
+        public short back;
         public BBoxshort box;
         public ushort face_id;
         public ushort face_num;
         public static Node Read(BinaryReader br) {
             Node node = new Node();
             node.plane_id = br.ReadInt32();
-            node.front = br.ReadUInt16();
-            node.back = br.ReadUInt16();
+            node.front = br.ReadInt16();
+            node.back = br.ReadInt16();
             node.box = BBoxshort.Read(br);
             node.face_id = br.ReadUInt16();
             node.face_num = br.ReadUInt16();
@@ -386,7 +386,7 @@ namespace QuakeMapViewer {
 
     class Leaf {
         public int type;
-        public int vis;
+        public int visOffset;
         public BBoxshort bound;
         public ushort lface_id;
         public ushort lface_num;
@@ -397,7 +397,7 @@ namespace QuakeMapViewer {
         public static Leaf Read(BinaryReader br) {
             Leaf leaf = new Leaf();
             leaf.type = br.ReadInt32();
-            leaf.vis = br.ReadInt32();
+            leaf.visOffset = br.ReadInt32();
             leaf.bound = BBoxshort.Read(br);
             leaf.lface_id = br.ReadUInt16();
             leaf.lface_num = br.ReadUInt16();
