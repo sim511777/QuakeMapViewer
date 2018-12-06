@@ -103,17 +103,22 @@ namespace QuakeMapViewer {
             foreach (var geoModel in this.bsp.geoModels)
                models.Add(geoModel);
          } else {
+            int leafNum = 0;
+            int faceNum = 0;
             var currLeaf = GetCurrLeaf();
             for (int L = 1; L < this.bsp.leaves.Length; L++) {
                if (currLeaf.visList[L] == false)
                   continue;
+               leafNum++;
                var leaf = this.bsp.leaves[L];
                for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
                   if (faceId >= this.bsp.geoModels.Length)
                      continue;
+                  faceNum++;
                   models.Add(this.bsp.geoModels[faceId]);
                }
             }
+            this.tbkVis.Text = $"leaf: {leafNum}, face: {faceNum}";
          }
 
          this.modelGroup.Children = models;
