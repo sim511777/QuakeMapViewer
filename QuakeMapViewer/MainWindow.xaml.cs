@@ -100,34 +100,18 @@ namespace QuakeMapViewer {
             return;
 
          if (novis) {
-				int curVis = GetCurrLeaf().visOffset;
-            int leafNum = 0;
-            int faceNum = 0;
-            this.tbkVis.Text = $"vis: {curVis}, leaf: {leafNum}, face: {faceNum}";
-
             foreach (var geoModel in this.bsp.geoModels)
                models.Add(geoModel);
          } else {
-            int curVis = GetCurrLeaf().visOffset;
-            int leafNum = 0;
-            int faceNum = 0;
-            this.tbkVis.Text = $"vis: {curVis}, leaf: {leafNum}, face: {faceNum}";
-
-            for (int L = 1; L < this.bsp.leaves.Length; curVis++) {
-               if (this.bsp.vislist[curVis] == 0) {
-                  L += 8 * this.bsp.vislist[curVis + 1];
-                  curVis++;
-               } else {
-                  for (int bit = 1; bit != 0; bit = bit * 2, L++) {
-                     if ((this.bsp.vislist[curVis] & bit) != 0) {
-                        var leaf = this.bsp.leaves[L];
-                        leafNum++;
-                        for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
-                           faceNum++;
-                           models.Add(this.bsp.geoModels[faceId]);
-                        }
-                     }
-                  }
+            var currLeaf = GetCurrLeaf();
+            for (int L = 1; L < this.bsp.leaves.Length; L++) {
+               if (currLeaf.visList[L] == false)
+                  continue;
+               var leaf = this.bsp.leaves[L];
+               for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
+                  if (faceId >= this.bsp.geoModels.Length)
+                     continue;
+                  models.Add(this.bsp.geoModels[faceId]);
                }
             }
          }
