@@ -1,8 +1,19 @@
 ﻿ok wpf3d suspend/resume update
+- this.modelGroup.Children 을 clear add 하지 않고 Children을 새로 assign
+
 bsp visibility
 - Node에는 Leaf번호가 있다. front나 back이 -1이면 -inode-1
 - Leaf에는 visoffset이 있다. vis버퍼에 시작 byte offset
 - visdata는 run-length로 인코딩 되어 있다. 0이 연결된 개수만
+
+- R_RenderView_
+ - R_SetupFrame
+  - Mod_PointInLeaf : 플레이어 위치의 Leaf를 찾아냄
+ - R_MarkLeaves : vis 체크 (왜 node->parent traverse하는지 의문)
+  - Mod_LeafPVS
+   - Mod_DecompressVis : vid데이터 decompress
+
+
 lightmap texture 로드
 lightmap coord 로드
 slimdx 컨버젼
