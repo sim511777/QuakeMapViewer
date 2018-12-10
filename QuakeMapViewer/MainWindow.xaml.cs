@@ -105,7 +105,8 @@ namespace QuakeMapViewer {
          } else {
             int leafNum = 0;
             int faceNum = 0;
-            var currLeaf = GetCurrLeaf();
+            var currLeafIdx = GetCurrLeafIdx();
+            var currLeaf = this.bsp.leaves[currLeafIdx];
             for (int L = 1; L < this.bsp.leaves.Length; L++) {
                if (currLeaf.visList[L] == false)
                   continue;
@@ -118,13 +119,13 @@ namespace QuakeMapViewer {
                   models.Add(this.bsp.geoModels[faceId]);
                }
             }
-            this.tbkVis.Text = $"leaf: {leafNum}, face: {faceNum}";
+            this.tbkVis.Text = $"currLeafIdx: {currLeafIdx}, leafNum: {leafNum}, faceNum: {faceNum}";
          }
 
          this.modelGroup.Children = models;
       }
 
-      private Leaf GetCurrLeaf() {
+      private int GetCurrLeafIdx() {
 		   short iNode = 0;
          while (true) {
 				var node = this.bsp.nodes[iNode];
@@ -134,14 +135,10 @@ namespace QuakeMapViewer {
 					iNode = node.front;
 				else
 					iNode = node.back;
-            if (iNode < 0)
-               return this.bsp.leaves[-iNode - 1];
+            if (iNode < 0) {
+               return -iNode - 1;
+            }
          }
-      }
-
-      bool IsVisVisible(int currVis, int chkVis) {
-         byte vis = this.bsp.vislist[(currVis * this.bsp.vislist.Length) + (chkVis >> 3)];
-         return (vis & (1 << (chkVis & 7))) != 0;
       }
 
       private void UpdateCamera() {

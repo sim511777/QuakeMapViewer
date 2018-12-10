@@ -164,6 +164,43 @@ namespace QuakeMapViewer {
          //R_BuildLightMap(surf, base, BLOCK_WIDTH * lightmap_bytes);
       }
 
+      private void DecompressVis(Leaf leaf) {
+         var leafCnt = (this.leaves.Count()+7)/8*8;
+         if (leaf.visOffset == -1) {
+            leaf.visList = Enumerable.Repeat(true, leafCnt).ToArray();
+            return;
+         }
+
+         int inPtr = leaf.visOffset;
+         List<bool> outList = new List<bool>();
+         int c;
+	      do
+	      {
+            if (inPtr >= this.vislist.Length)
+               break;
+		      var inVal = this.vislist[inPtr];
+		      if (inVal != 0)
+		      {
+               for (int i=0; i<8; i++)
+			         outList.Add((1 << i & inVal) != 0);
+               inPtr++;
+			      continue;
+		      }
+	
+            inPtr++;
+		      c = this.vislist[inPtr];
+		      inPtr++;
+
+		      while (c != 0)
+		      {
+               for (int i=0; i<8; i++)
+			         outList.Add(false);
+			      c--;
+		      }
+	      } while (outList.Count() < leafCnt);
+         leaf.visList = outList.ToArray();
+      }
+
       public static Bsp Read(byte[] buf, bool textureOrLightmap) {
          using (var ms = new MemoryStream(buf))
          using (var br = new BinaryReader(ms)) {
@@ -192,26 +229,8 @@ namespace QuakeMapViewer {
             bsp.lightmaps = ReadItems(br, header.lightmaps, (b) => b.ReadByte());
             bsp.clipnodes = ReadItems(br, header.clipnodes, (b) => Clipnode.Read(b));
             bsp.leaves = ReadItems(br, header.leaves, (b) => Leaf.Read(b));
-            int leavesCnt = bsp.leaves.Count();
             foreach (var leaf in bsp.leaves) {
-               leaf.visList = new bool[leavesCnt];
-               if (leaf.visOffset < 0) {
-                  for (int i = 0; i < leavesCnt; i++)
-                     leaf.visList[i] = true;
-                  continue;
-               }
-               int visIdx = 0;
-               for (int zeroCntIdx = leaf.visOffset; ; zeroCntIdx++) {
-                  int zeroCnt = bsp.vislist[zeroCntIdx];
-                  for (int i = 0; i < zeroCnt && visIdx < leavesCnt; i++) {
-                     leaf.visList[visIdx++] = false;
-                  }
-                  if (visIdx >= leavesCnt)
-                     break;
-                  leaf.visList[visIdx++] = true;
-                  if (visIdx >= leavesCnt)
-                     break;
-               }
+               bsp.DecompressVis(leaf);
             }
             bsp.lface = ReadItems(br, header.lface, (b) => b.ReadUInt16());
             bsp.edges = ReadItems(br, header.edges, (b) => Edge.Read(b));
