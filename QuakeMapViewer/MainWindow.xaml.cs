@@ -108,15 +108,16 @@ namespace QuakeMapViewer {
             var currLeafIdx = GetCurrLeafIdx();
             var currLeaf = this.bsp.leaves[currLeafIdx];
             for (int L = 1; L < this.bsp.leaves.Length; L++) {
-               if (currLeaf.visList[L] == false)
-                  continue;
-               leafNum++;
-               var leaf = this.bsp.leaves[L];
-               for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
-                  if (faceId >= this.bsp.geoModels.Length)
-                     continue;
-                  faceNum++;
-                  models.Add(this.bsp.geoModels[faceId]);
+               var vis = currLeaf.visList[L >> 3] & (int)(1 << (L & 7));
+               if (vis != 0) {
+                  leafNum++;
+                  var leaf = this.bsp.leaves[L];
+                  for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
+                     if (faceId >= this.bsp.geoModels.Length)
+                        continue;
+                     faceNum++;
+                     models.Add(this.bsp.geoModels[faceId]);
+                  }
                }
             }
             this.tbkVis.Text = $"currLeafIdx: {currLeafIdx}, leafNum: {leafNum}, faceNum: {faceNum}";

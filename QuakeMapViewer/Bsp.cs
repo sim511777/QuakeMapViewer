@@ -165,40 +165,30 @@ namespace QuakeMapViewer {
       }
 
       private void DecompressVis(Leaf leaf) {
-         var leafCnt = (this.leaves.Count()+7)/8*8;
          if (leaf.visOffset == -1) {
-            leaf.visList = Enumerable.Repeat(true, leafCnt).ToArray();
+            for (int i=0; i<leaf.visList.Length; i++)
+               leaf.visList[i] = 0xff;
             return;
          }
 
-         int inPtr = leaf.visOffset;
-         List<bool> outList = new List<bool>();
+         int row = (this.leaves.Count() + 7) >> 3;	
          int c;
-	      do
-	      {
-            if (inPtr >= this.vislist.Length)
-               break;
-		      var inVal = this.vislist[inPtr];
-		      if (inVal != 0)
-		      {
-               for (int i=0; i<8; i++)
-			         outList.Add((1 << i & inVal) != 0);
-               inPtr++;
-			      continue;
-		      }
-	
-            inPtr++;
-		      c = this.vislist[inPtr];
-		      inPtr++;
+         int inIdx = leaf.visOffset;
+         int outIdx = 0;
 
-		      while (c != 0)
-		      {
-               for (int i=0; i<8; i++)
-			         outList.Add(false);
-			      c--;
-		      }
-	      } while (outList.Count() < leafCnt);
-         leaf.visList = outList.ToArray();
+         do {
+            if (this.vislist[inIdx] != 0) {
+               leaf.visList[outIdx++] = this.vislist[inIdx++];
+               continue;
+            }
+
+            c = this.vislist[inIdx+1];
+            inIdx += 2;
+            while (c != 0) {
+               leaf.visList[outIdx++] = 0;
+               c--;
+            }
+         } while (outIdx < row);
       }
 
       public static Bsp Read(byte[] buf, bool textureOrLightmap) {
@@ -425,6 +415,7 @@ namespace QuakeMapViewer {
    }
 
    class Leaf {
+      const int MAX_MAP_LEAFS = 8192;
       public int type;
       public int visOffset;
       public BBoxshort bound;
@@ -434,7 +425,7 @@ namespace QuakeMapViewer {
       public byte sndsky;
       public byte sndslime;
       public byte sndlava;
-      public bool[] visList;
+      public byte[] visList = new byte[MAX_MAP_LEAFS / 8];
       public static Leaf Read(BinaryReader br) {
          Leaf leaf = new Leaf();
          leaf.type = br.ReadInt32();
