@@ -14,11 +14,8 @@ bsp visibility
    - Mod_DecompressVis : vid데이터 decompress
 
 
+pvs 체크 로직 수정
 lightmap texture 로드
 lightmap coord 로드
-slimdx 컨버젼
-
-transparent texture
-animated texture
-morphing texture
-tomb raider 맵 로딩
+multitexture
+quake2 맵 로드

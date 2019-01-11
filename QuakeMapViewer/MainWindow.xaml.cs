@@ -23,6 +23,7 @@ namespace QuakeMapViewer {
    /// </summary>
    public partial class MainWindow : Window {
       private Bsp bsp = null;
+      private byte[] vis = new byte[Bsp.MAX_MAP_LEAFS / 8];
       private AmbientLight ambientLight = new AmbientLight(Color.FromRgb(255,255,255));
       private Model3DGroup modelGroup;
 
@@ -107,9 +108,10 @@ namespace QuakeMapViewer {
             int faceNum = 0;
             var currLeafIdx = GetCurrLeafIdx();
             var currLeaf = this.bsp.leaves[currLeafIdx];
+            this.bsp.DecompressVis(this.vis, currLeaf);
             for (int L = 1; L < this.bsp.leaves.Length; L++) {
-               var vis = currLeaf.visList[L >> 3] & (int)(1 << (L & 7));
-               if (vis != 0) {
+               var bVisible = vis[L >> 3] & (1 << (L & 7));
+               if (bVisible != 0) {
                   leafNum++;
                   var leaf = this.bsp.leaves[L];
                   for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
@@ -129,6 +131,8 @@ namespace QuakeMapViewer {
       private int GetCurrLeafIdx() {
 		   short iNode = 0;
          while (true) {
+            if (iNode < 0)
+               return -iNode - 1;
 				var node = this.bsp.nodes[iNode];
             var plane = this.bsp.planes[node.plane_id];
             var dist = Vector3D.DotProduct((Vector3D)this.camPos, plane.normal) - plane.dist;
@@ -136,9 +140,6 @@ namespace QuakeMapViewer {
 					iNode = node.front;
 				else
 					iNode = node.back;
-            if (iNode < 0) {
-               return -iNode - 1;
-            }
          }
       }
 

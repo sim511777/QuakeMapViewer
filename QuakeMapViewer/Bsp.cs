@@ -10,6 +10,7 @@ using System.Windows.Media.Media3D;
 
 namespace QuakeMapViewer {
    class Bsp {
+      public const int MAX_MAP_LEAFS = 8192;
       public static BitmapPalette colorPalette;
       public static BitmapPalette grayPalette;
       public static int[] colorMap;
@@ -164,28 +165,28 @@ namespace QuakeMapViewer {
          //R_BuildLightMap(surf, base, BLOCK_WIDTH * lightmap_bytes);
       }
 
-      private void DecompressVis(Leaf leaf) {
+      public void DecompressVis(byte[] vis, Leaf leaf) {
          if (leaf.visOffset == -1) {
-            for (int i=0; i<leaf.visList.Length; i++)
-               leaf.visList[i] = 0xff;
+            for (int i = 0; i < vis.Length; i++)
+               vis[i] = 0xff;
             return;
          }
 
-         int row = (this.leaves.Count() + 7) >> 3;	
+         int row = (this.leaves.Count() + 7) >> 3;
          int c;
          int inIdx = leaf.visOffset;
          int outIdx = 0;
 
          do {
             if (this.vislist[inIdx] != 0) {
-               leaf.visList[outIdx++] = this.vislist[inIdx++];
+               vis[outIdx++] = this.vislist[inIdx++];
                continue;
             }
 
-            c = this.vislist[inIdx+1];
+            c = this.vislist[inIdx + 1];
             inIdx += 2;
             while (c != 0) {
-               leaf.visList[outIdx++] = 0;
+               vis[outIdx++] = 0;
                c--;
             }
          } while (outIdx < row);
@@ -219,9 +220,6 @@ namespace QuakeMapViewer {
             bsp.lightmaps = ReadItems(br, header.lightmaps, (b) => b.ReadByte());
             bsp.clipnodes = ReadItems(br, header.clipnodes, (b) => Clipnode.Read(b));
             bsp.leaves = ReadItems(br, header.leaves, (b) => Leaf.Read(b));
-            foreach (var leaf in bsp.leaves) {
-               bsp.DecompressVis(leaf);
-            }
             bsp.lface = ReadItems(br, header.lface, (b) => b.ReadUInt16());
             bsp.edges = ReadItems(br, header.edges, (b) => Edge.Read(b));
             bsp.ledges = ReadItems(br, header.ledges, (b) => b.ReadInt32());
@@ -415,7 +413,6 @@ namespace QuakeMapViewer {
    }
 
    class Leaf {
-      const int MAX_MAP_LEAFS = 8192;
       public int type;
       public int visOffset;
       public BBoxshort bound;
@@ -425,7 +422,6 @@ namespace QuakeMapViewer {
       public byte sndsky;
       public byte sndslime;
       public byte sndlava;
-      public byte[] visList = new byte[MAX_MAP_LEAFS / 8];
       public static Leaf Read(BinaryReader br) {
          Leaf leaf = new Leaf();
          leaf.type = br.ReadInt32();
