@@ -12,7 +12,6 @@ namespace QuakeMapViewer {
    class Bsp {
       public const int MAX_MAP_LEAFS = 8192;
       public static BitmapPalette colorPalette;
-      public static BitmapPalette grayPalette;
       public static int[] colorMap;
       public static Color ColorMapColor(int idx) {
          return Bsp.colorPalette.Colors[Bsp.colorMap[idx]];
@@ -27,7 +26,6 @@ namespace QuakeMapViewer {
          int palCnt = bytes.Length / 3;
          Bsp.colorPalette = new BitmapPalette(Enumerable.Range(0, palCnt).Select(palIdx => Color.FromRgb(bytes[palIdx * 3], bytes[palIdx * 3 + 1], bytes[palIdx * 3 + 2])).ToList());
          Bsp.colorMap = Properties.Resources.colormap.Take(64 * 256).Select(b => (int)b).ToArray();
-         Bsp.grayPalette = new BitmapPalette(Enumerable.Range(0, 256).Select(val => Color.FromRgb((byte)val, (byte)val, (byte)val)).ToList());
       }
 
       public static Vector3D Vector3DRead(BinaryReader br) {
@@ -166,7 +164,7 @@ namespace QuakeMapViewer {
       }
 
       public void DecompressVis(byte[] vis, Leaf leaf) {
-         if (leaf.visOffset == -1) {
+         if (leaf == this.leaves[0] || leaf.visOffset == -1) {
             for (int i = 0; i < vis.Length; i++)
                vis[i] = 0xff;
             return;
