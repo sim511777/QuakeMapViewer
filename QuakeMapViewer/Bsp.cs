@@ -48,7 +48,7 @@ namespace QuakeMapViewer {
       public Face[] faces;       // Faces of each surface.
       public byte[] lightmaps;   // Wall Light Maps.
       public Clipnode[] clipnodes;   // clip nodes, for Models.
-      public Leaf[] leaves;      // BSP Leaves.
+      public Leaf[] leafs;      // BSP Leaves.
       public ushort[] lface;       // List of Faces.
       public Edge[] edges;       // Edges of faces.
       public int[] ledges;      // List of Edges.
@@ -164,13 +164,13 @@ namespace QuakeMapViewer {
       }
 
       public void DecompressVis(byte[] vis, Leaf leaf) {
-         if (leaf == this.leaves[0] || leaf.visOffset == -1) {
+         if (leaf == this.leafs[0] || leaf.visOffset == -1) {
             for (int i = 0; i < vis.Length; i++)
                vis[i] = 0xff;
             return;
          }
 
-         int row = (this.leaves.Count() + 7) >> 3;
+         int row = (this.leafs.Count() + 7) >> 3;
          int c;
          int inIdx = leaf.visOffset;
          int outIdx = 0;
@@ -217,7 +217,7 @@ namespace QuakeMapViewer {
             bsp.faces = ReadItems(br, header.faces, (b) => Face.Read(b));
             bsp.lightmaps = ReadItems(br, header.lightmaps, (b) => b.ReadByte());
             bsp.clipnodes = ReadItems(br, header.clipnodes, (b) => Clipnode.Read(b));
-            bsp.leaves = ReadItems(br, header.leaves, (b) => Leaf.Read(b));
+            bsp.leafs = ReadItems(br, header.leafs, (b) => Leaf.Read(b));
             bsp.lface = ReadItems(br, header.lface, (b) => b.ReadUInt16());
             bsp.edges = ReadItems(br, header.edges, (b) => Edge.Read(b));
             bsp.ledges = ReadItems(br, header.ledges, (b) => b.ReadInt32());
@@ -265,7 +265,7 @@ namespace QuakeMapViewer {
       public Entry faces;
       public Entry lightmaps;
       public Entry clipnodes;
-      public Entry leaves;
+      public Entry leafs;
       public Entry lface;
       public Entry edges;
       public Entry ledges;
@@ -283,7 +283,7 @@ namespace QuakeMapViewer {
          header.faces = Entry.Read(br);
          header.lightmaps = Entry.Read(br);
          header.clipnodes = Entry.Read(br);
-         header.leaves = Entry.Read(br);
+         header.leafs = Entry.Read(br);
          header.lface = Entry.Read(br);
          header.edges = Entry.Read(br);
          header.ledges = Entry.Read(br);

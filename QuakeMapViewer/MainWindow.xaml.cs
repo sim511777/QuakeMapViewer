@@ -107,13 +107,13 @@ namespace QuakeMapViewer {
             int leafNum = 0;
             int faceNum = 0;
             var currLeafIdx = GetCurrLeafIdx();
-            var currLeaf = this.bsp.leaves[currLeafIdx];
+            var currLeaf = this.bsp.leafs[currLeafIdx];
             this.bsp.DecompressVis(this.vis, currLeaf);
-            for (int i = 1; i < this.bsp.leaves.Length; i++) {
+            for (int i = 1; i < this.bsp.leafs.Length; i++) {
                var bVisible = vis[i >> 3] & (1 << (i & 7));
                if (bVisible != 0) {
                   leafNum++;
-                  var leaf = this.bsp.leaves[i];
+                  var leaf = this.bsp.leafs[i];
                   for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
                      if (faceId >= this.bsp.geoModels.Length)
                         continue;
