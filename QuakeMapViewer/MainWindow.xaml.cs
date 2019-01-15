@@ -109,11 +109,11 @@ namespace QuakeMapViewer {
             var currLeafIdx = GetCurrLeafIdx();
             var currLeaf = this.bsp.leaves[currLeafIdx];
             this.bsp.DecompressVis(this.vis, currLeaf);
-            for (int L = 1; L < this.bsp.leaves.Length; L++) {
-               var bVisible = vis[L >> 3] & (1 << (L & 7));
+            for (int i = 1; i < this.bsp.leaves.Length; i++) {
+               var bVisible = vis[i >> 3] & (1 << (i & 7));
                if (bVisible != 0) {
                   leafNum++;
-                  var leaf = this.bsp.leaves[L];
+                  var leaf = this.bsp.leaves[i];
                   for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
                      if (faceId >= this.bsp.geoModels.Length)
                         continue;
