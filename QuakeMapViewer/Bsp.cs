@@ -175,6 +175,7 @@ namespace QuakeMapViewer {
          int inIdx = leaf.visOffset;
          int outIdx = 0;
 
+         int visLength = this.vislist.Count();
          do {
             if (this.vislist[inIdx] != 0) {
                vis[outIdx++] = this.vislist[inIdx++];
@@ -187,7 +188,7 @@ namespace QuakeMapViewer {
                vis[outIdx++] = 0;
                c--;
             }
-         } while (outIdx < row);
+         } while (outIdx < row && inIdx < visLength);
       }
 
       public static Bsp Read(byte[] buf, bool textureOrLightmap) {

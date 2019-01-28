@@ -109,16 +109,17 @@ namespace QuakeMapViewer {
             var currLeafIdx = GetCurrLeafIdx();
             var currLeaf = this.bsp.leafs[currLeafIdx];
             this.bsp.DecompressVis(this.vis, currLeaf);
-            for (int i = 1; i < this.bsp.leafs.Length; i++) {
+            for (int i = 1; i < this.bsp.models[0].numleafs; i++) {
                var bVisible = vis[i >> 3] & (1 << (i & 7));
                if (bVisible != 0) {
                   leafNum++;
                   var leaf = this.bsp.leafs[i];
-                  for (int cnt = 0, faceId = leaf.lface_id; cnt < leaf.lface_num; cnt++, faceId++) {
-                     if (faceId >= this.bsp.geoModels.Length)
-                        continue;
+                  int firstLFace = leaf.lface_id;
+                  int lastLFace = firstLFace + leaf.lface_num;
+                  for (int lFaceId = firstLFace, cnt = 0; lFaceId < lastLFace; lFaceId++, cnt++) {
+                     int surfaceId = this.bsp.lface[lFaceId];
+                     models.Add(this.bsp.geoModels[surfaceId]);
                      faceNum++;
-                     models.Add(this.bsp.geoModels[faceId]);
                   }
                }
             }
@@ -129,7 +130,7 @@ namespace QuakeMapViewer {
       }
 
       private int GetCurrLeafIdx() {
-		   short iNode = 0;
+		   short iNode = (short)this.bsp.models[0].node_id0;
          while (true) {
             if (iNode < 0)
                return -iNode - 1;
