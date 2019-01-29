@@ -92,7 +92,7 @@ namespace QuakeMapViewer {
          }
       }
 
-      private void UpdateScene(bool novis) {
+      private void UpdateScene(bool novis, bool bDrawEntity) {
          var models = new Model3DCollection();
          models.Add(this.ambientLight);
 
@@ -103,10 +103,9 @@ namespace QuakeMapViewer {
          int leafIdx = 0;
          int drawLeafNum = 0;
          int drawFaceNum = 0;
-         int allLeafNum = this.bsp.models[0].numleafs;
+         int visLeafNum = this.bsp.models[0].numleafs;
          if (novis || currLeaf == this.bsp.leafs[0]) {
-            int visOffset = currLeaf.visOffset;
-            while (leafIdx < allLeafNum) {
+            while (leafIdx < visLeafNum) {
                drawLeafNum++;
                var leaf = this.bsp.leafs[leafIdx + 1];
                for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
@@ -118,7 +117,7 @@ namespace QuakeMapViewer {
             }
          } else {
             int visOffset = currLeaf.visOffset;
-            while (leafIdx < allLeafNum) {
+            while (leafIdx < visLeafNum) {
                if (this.bsp.vislist[visOffset] == 0) {
                   leafIdx += this.bsp.vislist[visOffset + 1] * 8;
                   visOffset += 2;
@@ -138,6 +137,22 @@ namespace QuakeMapViewer {
                   visOffset++;
                } 
             }
+         }
+
+         // non pvs leaf (trigger, gate...)
+         if (bDrawEntity) {
+            leafIdx = visLeafNum;
+            int allLeafNum = this.bsp.leafs.Length;
+            while (leafIdx < allLeafNum - 1) {
+               drawLeafNum++;
+               var leaf = this.bsp.leafs[leafIdx + 1];
+               for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
+                  int surfaceId = this.bsp.lface[lFaceId];
+                  models.Add(this.bsp.geoModels[surfaceId]);
+                  drawFaceNum++;
+               }
+               leafIdx++;
+            } 
          }
 
          this.tbkVis.Text = $"leaf: {drawLeafNum}, face: {drawFaceNum}";
@@ -199,7 +214,7 @@ namespace QuakeMapViewer {
             ProcessInput(dTime);
          }
 
-         UpdateScene((bool)this.chkNoVis.IsChecked);
+         UpdateScene((bool)this.chkNoVis.IsChecked, (bool)this.chkDrawEntity.IsChecked);
          UpdateCamera();
       }
 
