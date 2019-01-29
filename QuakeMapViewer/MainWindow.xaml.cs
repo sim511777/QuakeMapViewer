@@ -23,7 +23,6 @@ namespace QuakeMapViewer {
    /// </summary>
    public partial class MainWindow : Window {
       private Bsp bsp = null;
-      private byte[] vis = new byte[Bsp.MAX_MAP_LEAFS / 8];
       private AmbientLight ambientLight = new AmbientLight(Color.FromRgb(255,255,255));
       private Model3DGroup modelGroup;
 
@@ -100,39 +99,56 @@ namespace QuakeMapViewer {
          if (this.bsp == null)
             return;
 
-         if (novis) {
-            foreach (var geoModel in this.bsp.geoModels)
-               models.Add(geoModel);
-         } else {
-            int leafNum = 0;
-            int faceNum = 0;
-            var currLeafIdx = GetCurrLeafIdx();
-            var currLeaf = this.bsp.leafs[currLeafIdx];
-            this.bsp.DecompressVis(this.vis, currLeaf);
-
-            for (int i = 0; i < this.bsp.models[0].numleafs; i++) {
-               var bVisible = vis[i >> 3] & (1 << (i & 7));
-               if (bVisible != 0) {
-                  leafNum++;
-                  var leaf = this.bsp.leafs[i+1];
-                  for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
-                     int surfaceId = this.bsp.lface[lFaceId];
-                     models.Add(this.bsp.geoModels[surfaceId]);
-                     faceNum++;
-                  }
+         var currLeaf = GetCurrLeaf();
+         int leafIdx = 0;
+         int drawLeafNum = 0;
+         int drawFaceNum = 0;
+         int allLeafNum = this.bsp.models[0].numleafs;
+         if (novis || currLeaf == this.bsp.leafs[0]) {
+            int visOffset = currLeaf.visOffset;
+            while (leafIdx < allLeafNum) {
+               drawLeafNum++;
+               var leaf = this.bsp.leafs[leafIdx + 1];
+               for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
+                  int surfaceId = this.bsp.lface[lFaceId];
+                  models.Add(this.bsp.geoModels[surfaceId]);
+                  drawFaceNum++;
                }
+               leafIdx++;
             }
-            this.tbkVis.Text = $"currLeafIdx: {currLeafIdx}, leafNum: {leafNum}, faceNum: {faceNum}";
+         } else {
+            int visOffset = currLeaf.visOffset;
+            while (leafIdx < allLeafNum) {
+               if (this.bsp.vislist[visOffset] == 0) {
+                  leafIdx += this.bsp.vislist[visOffset + 1] * 8;
+                  visOffset += 2;
+               } else {
+                  for (int i = 0; i < 8; i++) {
+                     if ((this.bsp.vislist[visOffset] & (1 << i)) != 0) {
+                        drawLeafNum++;
+                        var leaf = this.bsp.leafs[leafIdx + 1];
+                        for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
+                           int surfaceId = this.bsp.lface[lFaceId];
+                           models.Add(this.bsp.geoModels[surfaceId]);
+                           drawFaceNum++;
+                        }
+                     }
+                     leafIdx++;
+                  }
+                  visOffset++;
+               } 
+            }
          }
 
+         this.tbkVis.Text = $"leaf: {drawLeafNum}, face: {drawFaceNum}";
          this.modelGroup.Children = models;
       }
 
-      private int GetCurrLeafIdx() {
+      private Leaf GetCurrLeaf() {
 		   short iNode = (short)this.bsp.models[0].node_id0;
          while (true) {
             if (iNode < 0)
-               return -iNode - 1;
+               return this.bsp.leafs[-iNode - 1];
 				var node = this.bsp.nodes[iNode];
             var plane = this.bsp.planes[node.plane_id];
             var dist = Vector3D.DotProduct((Vector3D)this.camPos, plane.normal) - plane.dist;

@@ -10,7 +10,6 @@ using System.Windows.Media.Media3D;
 
 namespace QuakeMapViewer {
    class Bsp {
-      public const int MAX_MAP_LEAFS = 8192;
       public static BitmapPalette colorPalette;
       public static int[] colorMap;
       public static Color ColorMapColor(int idx) {
@@ -161,34 +160,6 @@ namespace QuakeMapViewer {
          //base = lightmaps + surf->lightmaptexturenum * lightmap_bytes * BLOCK_WIDTH * BLOCK_HEIGHT;
          //base += (surf->light_t * BLOCK_WIDTH + surf->light_s) * lightmap_bytes;
          //R_BuildLightMap(surf, base, BLOCK_WIDTH * lightmap_bytes);
-      }
-
-      public void DecompressVis(byte[] vis, Leaf leaf) {
-         if (leaf == this.leafs[0] || leaf.visOffset == -1) {
-            for (int i = 0; i < vis.Length; i++)
-               vis[i] = 0xff;
-            return;
-         }
-
-         int row = (this.leafs.Count() + 7) >> 3;
-         int c;
-         int inIdx = leaf.visOffset;
-         int outIdx = 0;
-
-         int visLength = this.vislist.Count();
-         do {
-            if (this.vislist[inIdx] != 0) {
-               vis[outIdx++] = this.vislist[inIdx++];
-               continue;
-            }
-
-            c = this.vislist[inIdx + 1];
-            inIdx += 2;
-            while (c != 0) {
-               vis[outIdx++] = 0;
-               c--;
-            }
-         } while (outIdx < row && inIdx < visLength);
       }
 
       public static Bsp Read(byte[] buf, bool textureOrLightmap) {
