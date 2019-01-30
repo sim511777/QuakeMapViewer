@@ -1,5 +1,15 @@
 ﻿ok wpf3d suspend/resume update
 - this.modelGroup.Children 을 clear add 하지 않고 Children을 새로 assign
+ok pvs 구현
+- Leaf leaf = Leafs[visIdx+1];
+- int faceIdx = lfaces[leaf.lfacdIdx];
+- Face = faces[faceIdx]
+entity pvs 구현
+lightmap texture 로드
+lightmap coord 로드
+multitexture
+quake2 map 로드
+tomb raider 1 map로드
 
 bsp visibility
 - Node에는 Leaf번호가 있다. front나 back이 -1이면 -inode-1
@@ -12,10 +22,3 @@ bsp visibility
  - R_MarkLeaves : vis 체크 (왜 node->parent traverse하는지 의문)
   - Mod_LeafPVS
    - Mod_DecompressVis : vid데이터 decompress
-
-
-pvs 체크 로직 수정
-lightmap texture 로드
-lightmap coord 로드
-multitexture
-quake2 맵 로드
