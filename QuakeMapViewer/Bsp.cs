@@ -27,15 +27,6 @@ namespace QuakeMapViewer {
          Bsp.colorMap = Properties.Resources.colormap.Take(64 * 256).Select(b => (int)b).ToArray();
       }
 
-      public static Vector3D Vector3DRead(BinaryReader br) {
-         Vector3D vertex = new Vector3D();
-         vertex.X = br.ReadSingle();
-         vertex.Y = br.ReadSingle();
-         vertex.Z = br.ReadSingle();
-         return vertex;
-      }
-
-
       public Entity[] entities;    // List of Entities.
       public Plane[] planes;      // Map Planes.
       public Mipheader mipheader;   // Wall Textures.
@@ -182,7 +173,7 @@ namespace QuakeMapViewer {
                bsp.miptexs[i] = Miptex.Read(br);
             }
 
-            bsp.vertices = ReadItems(br, header.vertices, (b) => Vector3DRead(b));
+            bsp.vertices = ReadItems(br, header.vertices, (b) => new Vector3D(b.ReadSingle(), b.ReadSingle(), b.ReadSingle()));
             bsp.vislist = ReadItems(br, header.visilist, (b) => b.ReadByte());
             bsp.nodes = ReadItems(br, header.nodes, (b) => Node.Read(b));
             bsp.texinfo = ReadItems(br, header.texinfo, (b) => TexInfo.Read(b));
@@ -306,8 +297,8 @@ namespace QuakeMapViewer {
       public Vector3D max;
       public static Boundbox Read(BinaryReader br) {
          Boundbox box = new Boundbox();
-         box.min = Bsp.Vector3DRead(br);
-         box.max = Bsp.Vector3DRead(br);
+         box.min = new Vector3D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
+         box.max = new Vector3D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
          return box;
       }
    }
@@ -359,9 +350,9 @@ namespace QuakeMapViewer {
       public uint animated;
       public static TexInfo Read(BinaryReader br) {
          TexInfo surface = new TexInfo();
-         surface.vectorS = Bsp.Vector3DRead(br);
+         surface.vectorS = new Vector3D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
          surface.distS = br.ReadSingle();
-         surface.vectorT = Bsp.Vector3DRead(br);
+         surface.vectorT = new Vector3D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
          surface.distT = br.ReadSingle();
          surface.texture_id = br.ReadUInt32();
          surface.animated = br.ReadUInt32();
@@ -420,7 +411,7 @@ namespace QuakeMapViewer {
       public static Model Read(BinaryReader br) {
          Model model = new Model();
          model.bound = Boundbox.Read(br);
-         model.origin = Bsp.Vector3DRead(br);
+         model.origin = new Vector3D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
          model.node_id0 = br.ReadInt32();
          model.node_id1 = br.ReadInt32();
          model.node_id2 = br.ReadInt32();
@@ -447,7 +438,7 @@ namespace QuakeMapViewer {
       public PlaneType type;
       public static Plane Read(BinaryReader br) {
          Plane plane = new Plane();
-         plane.normal = Bsp.Vector3DRead(br);
+         plane.normal = new Vector3D(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
          plane.dist = br.ReadSingle();
          plane.type = (PlaneType)br.ReadInt32();
          return plane;
