@@ -96,6 +96,7 @@
     <None Include="Resources\colormap.lmp" />
     <None Include="Resources\e1m1.bsp" />
     <None Include="Resources\palette.lmp" />
+    <None Include="Resources\start.bsp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -234,5 +234,10 @@ namespace QuakeMapViewer {
             this.Cursor = Cursors.Arrow; 
          }
       }
+
+      private void BtnStart_Click(object sender, RoutedEventArgs e) {
+         var buf = Properties.Resources.start;
+         this.LoadBsp(buf);
+      }
    }
 }
