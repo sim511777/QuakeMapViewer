@@ -46,6 +46,7 @@ namespace QuakeMapViewer {
 
       public DiffuseMaterial[] materials;   // texture
       public GeometryModel3D[] geoModels; // geo models
+      public GeometryModel3D[] lightModels; // geo models
 
       public static DiffuseMaterial GetMaterial(Miptex miptex) {
          if (miptex == null)
@@ -60,7 +61,7 @@ namespace QuakeMapViewer {
          return material;
       }
 
-      public GeometryModel3D GetModel(Face face, bool textureOrLightmap) {
+      public GeometryModel3D GetGeoModel(Face face) {
          var ledgelist = this.ledges.Skip(face.ledge_id).Take(face.ledge_num);
          var vidxs = ledgelist
             .Select((ledge) => (ledge >= 0) ? new int[] { this.edges[ledge].vertex0, this.edges[ledge].vertex1 } : new int[] { this.edges[-ledge].vertex1, this.edges[-ledge].vertex0 })
@@ -79,15 +80,44 @@ namespace QuakeMapViewer {
             mesh.Positions.Add((Point3D)v);
             mesh.Normals.Add(this.planes[face.plane_id].normal);
 
-            if (textureOrLightmap) {
-               Point st = new Point();
-               st.X = (Vector3D.DotProduct(v, texinfo.vectorS) + texinfo.distS) / tw;
-               st.Y = (Vector3D.DotProduct(v, texinfo.vectorT) + texinfo.distT) / th;
-               mesh.TextureCoordinates.Add(st);
-            } else {
-               CalcSurfaceExtents(face);
-               CreateSurfaceLightmap(face);
-            }
+            Point st = new Point();
+            st.X = (Vector3D.DotProduct(v, texinfo.vectorS) + texinfo.distS) / tw;
+            st.Y = (Vector3D.DotProduct(v, texinfo.vectorT) + texinfo.distT) / th;
+            mesh.TextureCoordinates.Add(st);
+         }
+
+         for (int i = 2; i < vidxs.Count(); i++) {
+            mesh.TriangleIndices.Add(i);
+            mesh.TriangleIndices.Add(i - 1);
+            mesh.TriangleIndices.Add(0);
+         }
+
+         return new GeometryModel3D(mesh, material);
+      }
+
+      public GeometryModel3D GetLightModel(Face face) {
+         var ledgelist = this.ledges.Skip(face.ledge_id).Take(face.ledge_num);
+         var vidxs = ledgelist
+            .Select((ledge) => (ledge >= 0) ? new int[] { this.edges[ledge].vertex0, this.edges[ledge].vertex1 } : new int[] { this.edges[-ledge].vertex1, this.edges[-ledge].vertex0 })
+            .SelectMany((pair) => pair)
+            .Where((vidx, i) => (i % 2 == 0));
+
+         TexInfo texinfo = this.texinfo[face.texinfo_id];
+         var material = this.materials[texinfo.texture_id];
+         var imageBrush = material.Brush as ImageBrush;
+         var tw = imageBrush.ImageSource.Width;
+         var th = imageBrush.ImageSource.Height;
+
+         MeshGeometry3D mesh = new MeshGeometry3D();
+         foreach (var vidx in vidxs) {
+            var v = this.vertices[vidx];
+            mesh.Positions.Add((Point3D)v);
+            mesh.Normals.Add(this.planes[face.plane_id].normal);
+
+            Point st = new Point();
+            st.X = (Vector3D.DotProduct(v, texinfo.vectorS) + texinfo.distS) / tw;
+            st.Y = (Vector3D.DotProduct(v, texinfo.vectorT) + texinfo.distT) / th;
+            mesh.TextureCoordinates.Add(st);
          }
 
          for (int i = 2; i < vidxs.Count(); i++) {
@@ -153,7 +183,7 @@ namespace QuakeMapViewer {
          //R_BuildLightMap(surf, base, BLOCK_WIDTH * lightmap_bytes);
       }
 
-      public static Bsp Read(byte[] buf, bool textureOrLightmap) {
+      public static Bsp Read(byte[] buf) {
          using (var ms = new MemoryStream(buf))
          using (var br = new BinaryReader(ms)) {
             Header header = Header.Read(br);
@@ -187,7 +217,8 @@ namespace QuakeMapViewer {
             bsp.models = ReadItems(br, header.models, (b) => Model.Read(b));
 
             bsp.materials = bsp.miptexs.Select((mip) => GetMaterial(mip)).ToArray();
-            bsp.geoModels = bsp.faces.Select((face) => bsp.GetModel(face, textureOrLightmap)).ToArray();
+            bsp.geoModels = bsp.faces.Select((face) => bsp.GetGeoModel(face)).ToArray();
+            bsp.lightModels = bsp.faces.Select((face) => bsp.GetLightModel(face)).ToArray();
 
             return bsp;
          }

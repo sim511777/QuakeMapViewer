@@ -92,26 +92,24 @@ namespace QuakeMapViewer {
          }
       }
 
-      private void UpdateScene(bool novis, bool bDrawEntity) {
+      private void UpdateScene() {
          var models = new Model3DCollection();
          models.Add(this.ambientLight);
 
          if (this.bsp == null)
             return;
 
+         var selModelSource = this.rdoTexture.IsChecked == true ? this.bsp.geoModels : this.bsp.lightModels;
+
          var currLeaf = GetCurrLeaf();
          int leafIdx = 0;
-         int drawLeafNum = 0;
-         int drawFaceNum = 0;
          int visLeafNum = this.bsp.models[0].numleafs;
-         if (novis || currLeaf == this.bsp.leafs[0]) {
+         if ((bool)this.chkNoVis.IsChecked || currLeaf == this.bsp.leafs[0]) {
             while (leafIdx < visLeafNum) {
-               drawLeafNum++;
                var leaf = this.bsp.leafs[leafIdx + 1];
                for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
                   int surfaceId = this.bsp.lface[lFaceId];
-                  models.Add(this.bsp.geoModels[surfaceId]);
-                  drawFaceNum++;
+                  models.Add(selModelSource[surfaceId]);
                }
                leafIdx++;
             }
@@ -124,12 +122,10 @@ namespace QuakeMapViewer {
                } else {
                   for (int i = 0; i < 8; i++) {
                      if ((this.bsp.vislist[visOffset] & (1 << i)) != 0) {
-                        drawLeafNum++;
                         var leaf = this.bsp.leafs[leafIdx + 1];
                         for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
                            int surfaceId = this.bsp.lface[lFaceId];
-                           models.Add(this.bsp.geoModels[surfaceId]);
-                           drawFaceNum++;
+                           models.Add(selModelSource[surfaceId]);
                         }
                      }
                      leafIdx++;
@@ -140,23 +136,21 @@ namespace QuakeMapViewer {
          }
 
          // non pvs leaf (trigger, gate...)
-         if (bDrawEntity) {
+         if ((bool)this.chkDrawEntity.IsChecked) {
             leafIdx = visLeafNum;
             int allLeafNum = this.bsp.leafs.Length;
             while (leafIdx < allLeafNum - 1) {
-               drawLeafNum++;
                var leaf = this.bsp.leafs[leafIdx + 1];
                for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
                   int surfaceId = this.bsp.lface[lFaceId];
                   models.Add(this.bsp.geoModels[surfaceId]);
-                  drawFaceNum++;
                }
                leafIdx++;
             } 
          }
 
-         this.tbkVis.Text = $"leaf: {drawLeafNum}, face: {drawFaceNum}";
-         this.modelGroup.Children = models;
+         this.modelGroup.Children = new Model3DCollection(models.Distinct());
+         this.tbkFace.Text = $"face:{this.modelGroup.Children.Count}";
       }
 
       private Leaf GetCurrLeaf() {
@@ -198,7 +192,7 @@ namespace QuakeMapViewer {
       }
 
       private void LoadBsp(byte[] buf) {
-         this.bsp = Bsp.Read(buf, (bool)this.rdoTexture.IsChecked);
+         this.bsp = Bsp.Read(buf);
          this.LoadCamera();
       }
 
@@ -214,7 +208,7 @@ namespace QuakeMapViewer {
             ProcessInput(dTime);
          }
 
-         UpdateScene((bool)this.chkNoVis.IsChecked, (bool)this.chkDrawEntity.IsChecked);
+         UpdateScene();
          UpdateCamera();
       }
 

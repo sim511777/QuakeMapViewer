@@ -11,15 +11,15 @@
          <ColumnDefinition Width="200"></ColumnDefinition>
          <ColumnDefinition/>
       </Grid.ColumnDefinitions>
-      <Button x:Name="btnLoad" Grid.Column="0" Content="Load" HorizontalAlignment="Left" Margin="10,131,0,0" VerticalAlignment="Top" Width="75" Click="btnLoad_Click"/>
+      <Button x:Name="btnLoad" Grid.Column="0" Content="Load" HorizontalAlignment="Left" Margin="90,71,0,0" VerticalAlignment="Top" Width="75" Click="btnLoad_Click"/>
       <Viewport3D x:Name="view" Grid.Column="1" VerticalAlignment="Stretch" MouseDown="view_MouseDown"/>
-      <Button x:Name="btnE1m1" Content="e1m1" HorizontalAlignment="Left" Margin="10,106,0,0" VerticalAlignment="Top" Width="75" Click="btnE1m1_Click"/>
-      <RadioButton x:Name="rdoLightmap" Content="Lightmap" HorizontalAlignment="Left" Margin="74,41,0,0" VerticalAlignment="Top"/>
-      <RadioButton x:Name="rdoTexture" Content="Texture" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" IsChecked="True"/>
-      <TextBlock x:Name="tbkFps" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="FPS" VerticalAlignment="Top"/>
-      <CheckBox x:Name="chkNoVis" Content="NoVis" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top"/>
-      <TextBlock x:Name="tbkVis" HorizontalAlignment="Left" Margin="10,156,0,0" TextWrapping="Wrap" Text="vis: 0, leaf: 0, face: 0" VerticalAlignment="Top"/>
-      <CheckBox x:Name="chkDrawEntity" Content="DrawEntity" HorizontalAlignment="Left" Margin="74,61,0,0" VerticalAlignment="Top"/>
-      <Button x:Name="btnStart" Content="start" HorizontalAlignment="Left" Margin="10,81,0,0" VerticalAlignment="Top" Width="75" Click="BtnStart_Click"/>
+      <Button x:Name="btnE1m1" Content="e1m1" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top" Width="75" Click="btnE1m1_Click"/>
+      <RadioButton x:Name="rdoLightmap" Content="Lightmap" HorizontalAlignment="Left" Margin="74,31,0,0" VerticalAlignment="Top"/>
+      <RadioButton x:Name="rdoTexture" Content="Texture" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top" IsChecked="True"/>
+      <TextBlock x:Name="tbkFps" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="FPS:60" VerticalAlignment="Top"/>
+      <CheckBox x:Name="chkNoVis" Content="NoVis" HorizontalAlignment="Left" Margin="10,51,0,0" VerticalAlignment="Top"/>
+      <TextBlock x:Name="tbkFace" HorizontalAlignment="Left" Margin="60,10,0,0" TextWrapping="Wrap" Text="face:2000" VerticalAlignment="Top"/>
+      <CheckBox x:Name="chkDrawEntity" Content="DrawEntity" HorizontalAlignment="Left" Margin="74,51,0,0" VerticalAlignment="Top"/>
+      <Button x:Name="btnStart" Content="start" HorizontalAlignment="Left" Margin="10,71,0,0" VerticalAlignment="Top" Width="75" Click="BtnStart_Click"/>
    </Grid>
 </Window>
