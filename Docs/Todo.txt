@@ -4,9 +4,12 @@ ok pvs 구현
 - Leaf leaf = Leafs[visIdx+1];
 - int faceIdx = lfaces[leaf.lfacdIdx];
 - Face = faces[faceIdx]
-lightmap texture 로드
-lightmap coord 로드
+ok lightmap texture 로드
+ok lightmap coord 로드
+라이트맵 약간 안깔끔함
+nearest 모드 구현
 entity pvs 구현
+
 multitexture
 slimdx or xna(fna, monogame) 으로 포팅
 wireframe모드 추가

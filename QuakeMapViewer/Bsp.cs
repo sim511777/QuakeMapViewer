@@ -11,6 +11,7 @@ using System.Windows.Media.Media3D;
 namespace QuakeMapViewer {
    class Bsp {
       public static BitmapPalette colorPalette;
+      public static BitmapPalette grayPalette;
       public static int[] colorMap;
       public static Color ColorMapColor(int idx) {
          return Bsp.colorPalette.Colors[Bsp.colorMap[idx]];
@@ -24,6 +25,7 @@ namespace QuakeMapViewer {
          var bytes = Properties.Resources.palette;
          int palCnt = bytes.Length / 3;
          Bsp.colorPalette = new BitmapPalette(Enumerable.Range(0, palCnt).Select(palIdx => Color.FromRgb(bytes[palIdx * 3], bytes[palIdx * 3 + 1], bytes[palIdx * 3 + 2])).ToList());
+         Bsp.grayPalette = new BitmapPalette(Enumerable.Range(0, 256).Select(palIdx => Color.FromRgb((byte)palIdx, (byte)palIdx, (byte)palIdx)).ToList());
          Bsp.colorMap = Properties.Resources.colormap.Take(64 * 256).Select(b => (int)b).ToArray();
       }
 
@@ -51,7 +53,7 @@ namespace QuakeMapViewer {
       public static DiffuseMaterial GetMaterial(Miptex miptex) {
          if (miptex == null)
             return null;
-         byte[] bytes = miptex.texture1;
+
          WriteableBitmap bmp = new WriteableBitmap(miptex.width, miptex.height, 96, 96, PixelFormats.Indexed8, Bsp.colorPalette);
          bmp.WritePixels(new Int32Rect(0, 0, miptex.width, miptex.height), miptex.texture1, miptex.width, 0);
          var brush = new ImageBrush(bmp);
@@ -95,18 +97,93 @@ namespace QuakeMapViewer {
          return new GeometryModel3D(mesh, material);
       }
 
+      private void CalcSurfaceExtents(Face s) {
+         float[] numArray1 = new float[2];
+         float[] numArray2 = new float[2];
+         int[] numArray3 = new int[2];
+         int[] numArray4 = new int[2];
+         numArray1[0] = numArray1[1] = 999999f;
+         numArray2[0] = numArray2[1] = -99999f;
+         TexInfo texinfoT = this.texinfo[(int)s.texinfo_id];
+         for (int index1 = 0; index1 < (int)s.ledge_num; ++index1) {
+            int surfedge = this.ledges[s.ledge_id + index1];
+            var vertexT = surfedge < 0 ? this.vertices[(int)this.edges[-surfedge].vertex1] : this.vertices[(int)this.edges[surfedge].vertex0];
+            double numS = Vector3D.DotProduct(vertexT, texinfoT.vectorS) + texinfoT.distS;
+            if (numS < numArray1[0])
+               numArray1[0] = (float)numS;
+            if (numS > numArray2[0])
+               numArray2[0] = (float)numS;
+            double numT = Vector3D.DotProduct(vertexT, texinfoT.vectorT) + texinfoT.distT;
+            if (numT < numArray1[1])
+               numArray1[1] = (float)numT;
+            if (numT > numArray2[1])
+               numArray2[1] = (float)numT;
+         }
+         s.texturemins = new int[2];
+         s.extents = new int[2];
+         for (int index = 0; index < 2; ++index) {
+            numArray3[index] = (int)Math.Floor((double)numArray1[index] / 16.0);
+            numArray4[index] = (int)Math.Ceiling((double)numArray2[index] / 16.0);
+            s.texturemins[index] = numArray3[index] * 16;
+            s.extents[index] = (numArray4[index] - numArray3[index]) * 16;
+         }
+      }
+
+      private DiffuseMaterial r_BuildLightmap(byte[] buffer, int width, int height) {
+         WriteableBitmap bmp = new WriteableBitmap(width, height, 96, 96, PixelFormats.Indexed8, Bsp.grayPalette);
+         bmp.WritePixels(new Int32Rect(0, 0, width, height), buffer, width, 0);
+         var brush = new ImageBrush(bmp);
+         brush.TileMode = TileMode.Tile;
+         brush.ViewportUnits = BrushMappingMode.Absolute;
+         var material = new DiffuseMaterial(brush);
+         return material;
+      }
+
+      private DiffuseMaterial R_BuildLightMap(Face surf) {
+         int lightofs1 = surf.lightofs;
+         if (lightofs1 == -1) {
+            byte[] buffer2 = new byte[4];
+            for (int index1 = 0; index1 < 4; ++index1)
+               buffer2[index1] = (byte)0;
+            return this.r_BuildLightmap(buffer2, 2, 2);
+         }
+
+         uint[] blocklights = new uint[4096];
+         int width = (surf.extents[0] >> 4) + 1;
+         int height = (surf.extents[1] >> 4) + 1;
+         int length = width * height;
+         int lightofs2 = surf.lightofs;
+         for (int index = 0; index < 364; ++index)
+            blocklights[index] = 0U;
+         for (int index1 = 0; index1 < 4 && surf.styles[index1] != byte.MaxValue; ++index1) {
+            uint num = 264;
+            for (int index2 = 0; index2 < length; ++index2)
+               blocklights[index2] += this.lightmaps[lightofs2 + index2] * num;
+            lightofs2 += length;
+         }
+         int index3 = 0;
+         byte[] buffer1 = new byte[length];
+         int index4 = 0;
+         while (index4 < length) {
+            uint num = blocklights[index3] >> 7;
+            if (num > (uint)byte.MaxValue)
+               num = (uint)byte.MaxValue;
+            buffer1[index4] = (byte)num;
+            ++index4;
+            ++index3;
+         }
+         return this.r_BuildLightmap(buffer1, width, height);
+      }
+
       public GeometryModel3D GetLightModel(Face face) {
+         this.CalcSurfaceExtents(face);
          var ledgelist = this.ledges.Skip(face.ledge_id).Take(face.ledge_num);
          var vidxs = ledgelist
             .Select((ledge) => (ledge >= 0) ? new int[] { this.edges[ledge].vertex0, this.edges[ledge].vertex1 } : new int[] { this.edges[-ledge].vertex1, this.edges[-ledge].vertex0 })
             .SelectMany((pair) => pair)
             .Where((vidx, i) => (i % 2 == 0));
 
-         TexInfo texinfo = this.texinfo[face.texinfo_id];
-         var material = this.materials[texinfo.texture_id];
-         var imageBrush = material.Brush as ImageBrush;
-         var tw = imageBrush.ImageSource.Width;
-         var th = imageBrush.ImageSource.Height;
+         TexInfo texinfoT = this.texinfo[face.texinfo_id];
 
          MeshGeometry3D mesh = new MeshGeometry3D();
          foreach (var vidx in vidxs) {
@@ -115,8 +192,8 @@ namespace QuakeMapViewer {
             mesh.Normals.Add(this.planes[face.plane_id].normal);
 
             Point st = new Point();
-            st.X = (Vector3D.DotProduct(v, texinfo.vectorS) + texinfo.distS) / tw;
-            st.Y = (Vector3D.DotProduct(v, texinfo.vectorT) + texinfo.distT) / th;
+            st.X = (Vector3D.DotProduct(texinfoT.vectorS, v) + texinfoT.distS + 8f - face.texturemins[0]) / face.extents[0];
+            st.Y = (Vector3D.DotProduct(texinfoT.vectorT, v) + texinfoT.distT + 8f - face.texturemins[1]) / face.extents[1];
             mesh.TextureCoordinates.Add(st);
          }
 
@@ -126,61 +203,8 @@ namespace QuakeMapViewer {
             mesh.TriangleIndices.Add(0);
          }
 
+         DiffuseMaterial material = R_BuildLightMap(face);
          return new GeometryModel3D(mesh, material);
-      }
-
-      public void CalcSurfaceExtents(Face s) {
-         float[] mins = new float[2];
-         float[] maxs = new float[2];
-         int i, j, e;
-         Vector3D v;
-         TexInfo tex;
-         int[] bmins = new int[2];
-         int[] bmaxs = new int[2];
-
-         mins[0] = mins[1] = 999999;
-         maxs[0] = maxs[1] = -99999;
-
-         tex = this.texinfo[s.texinfo_id];
-
-         for (i = 0; i < s.ledge_num; i++) {
-            e = this.ledges[s.ledge_id + i];
-            if (e >= 0)
-               v = this.vertices[this.edges[e].vertex0];
-            else
-               v = this.vertices[this.edges[-e].vertex1];
-
-            float valS = (float)(Vector3D.DotProduct(v, tex.vectorS) + tex.distS);
-            mins[0] = Math.Min(valS, mins[0]);
-            maxs[0] = Math.Max(valS, mins[0]);
-            float valT = (float)(Vector3D.DotProduct(v, tex.vectorT) + tex.distT);
-            mins[1] = Math.Min(valT, mins[1]);
-            maxs[1] = Math.Max(valT, mins[1]);
-         }
-
-         for (i = 0; i < 2; i++) {
-            bmins[i] = (int)Math.Floor(mins[i] / 16);
-            bmaxs[i] = (int)Math.Ceiling(maxs[i] / 16);
-
-            s.texturemins[i] = (short)(bmins[i] * 16);
-            s.extents[i] = (short)((bmaxs[i] - bmins[i]) * 16);
-         }
-      }
-
-      public void CreateSurfaceLightmap(Face surf) {
-         //int smax, tmax, s, t, l, i;
-         //byte*base;
-
-         //if (surf->flags & (SURF_DRAWSKY | SURF_DRAWTURB))
-         //    return;
-
-         //smax = (surf.extents[0] >> 4) + 1;
-         //tmax = (surf.extents[1] >> 4) + 1;
-
-         //surf.lightmaptexturenum = AllocBlock(smax, tmax, &surf->light_s, &surf->light_t);
-         //base = lightmaps + surf->lightmaptexturenum * lightmap_bytes * BLOCK_WIDTH * BLOCK_HEIGHT;
-         //base += (surf->light_t * BLOCK_WIDTH + surf->light_s) * lightmap_bytes;
-         //R_BuildLightMap(surf, base, BLOCK_WIDTH * lightmap_bytes);
       }
 
       public static Bsp Read(byte[] buf) {
@@ -526,14 +550,10 @@ namespace QuakeMapViewer {
       public int ledge_id;
       public ushort ledge_num;
       public ushort texinfo_id;
-      public byte styles0;
-      public byte styles1;
-      public byte styles2;
-      public byte styles3;
+      public byte[] styles;
       public int lightofs;
-
-      public short[] texturemins = new short[2];
-      public short[] extents = new short[2];
+      public int[] texturemins;
+      public int[] extents;
 
       public static Face Read(BinaryReader br) {
          Face face = new Face();
@@ -542,10 +562,7 @@ namespace QuakeMapViewer {
          face.ledge_id = br.ReadInt32();
          face.ledge_num = br.ReadUInt16();
          face.texinfo_id = br.ReadUInt16();
-         face.styles0 = br.ReadByte();
-         face.styles1 = br.ReadByte();
-         face.styles2 = br.ReadByte();
-         face.styles3 = br.ReadByte();
+         face.styles = br.ReadBytes(4);
          face.lightofs = br.ReadInt32();
          return face;
       }
