@@ -15,7 +15,6 @@ D:\github\QuakeMapViewer\QuakeMapViewer\obj\Debug\QuakeWpf.pdb
 D:\github\QuakeMapViewer\QuakeWpf\bin\Debug\QuakeWpf.exe.config
 D:\github\QuakeMapViewer\QuakeWpf\bin\Debug\QuakeWpf.exe
 D:\github\QuakeMapViewer\QuakeWpf\bin\Debug\QuakeWpf.pdb
-D:\github\QuakeMapViewer\QuakeWpf\obj\Debug\QuakeWpf.csprojAssemblyReference.cache
 D:\github\QuakeMapViewer\QuakeWpf\obj\Debug\MainWindow.g.cs
 D:\github\QuakeMapViewer\QuakeWpf\obj\Debug\App.g.cs
 D:\github\QuakeMapViewer\QuakeWpf\obj\Debug\QuakeWpf_MarkupCompile.cache
