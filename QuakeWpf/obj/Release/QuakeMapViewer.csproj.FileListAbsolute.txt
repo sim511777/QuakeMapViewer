@@ -1,0 +1,15 @@
+D:\github\QuakeMapViewer\QuakeMapViewer\bin\Release\QuakeMapViewer.exe.config
+D:\github\QuakeMapViewer\QuakeMapViewer\bin\Release\QuakeMapViewer.exe
+D:\github\QuakeMapViewer\QuakeMapViewer\bin\Release\QuakeMapViewer.pdb
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\QuakeMapViewer.csprojAssemblyReference.cache
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\MainWindow.g.cs
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\App.g.cs
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\QuakeMapViewer_MarkupCompile.cache
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\QuakeMapViewer_MarkupCompile.lref
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\MainWindow.baml
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\QuakeMapViewer.g.resources
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\QuakeMapViewer.Properties.Resources.resources
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\QuakeMapViewer.csproj.GenerateResource.cache
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\QuakeMapViewer.csproj.CoreCompileInputs.cache
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\QuakeMapViewer.exe
+D:\github\QuakeMapViewer\QuakeMapViewer\obj\Release\QuakeMapViewer.pdb
