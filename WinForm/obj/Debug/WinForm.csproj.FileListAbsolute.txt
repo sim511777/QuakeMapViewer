@@ -1,0 +1,10 @@
+D:\github\QuakeMapViewer\WinForm\bin\Debug\WinForm.exe.config
+D:\github\QuakeMapViewer\WinForm\bin\Debug\WinForm.exe
+D:\github\QuakeMapViewer\WinForm\bin\Debug\WinForm.pdb
+D:\github\QuakeMapViewer\WinForm\obj\Debug\WinForm.csprojAssemblyReference.cache
+D:\github\QuakeMapViewer\WinForm\obj\Debug\WinForm.MainForm.resources
+D:\github\QuakeMapViewer\WinForm\obj\Debug\WinForm.Properties.Resources.resources
+D:\github\QuakeMapViewer\WinForm\obj\Debug\WinForm.csproj.GenerateResource.cache
+D:\github\QuakeMapViewer\WinForm\obj\Debug\WinForm.csproj.CoreCompileInputs.cache
+D:\github\QuakeMapViewer\WinForm\obj\Debug\WinForm.exe
+D:\github\QuakeMapViewer\WinForm\obj\Debug\WinForm.pdb

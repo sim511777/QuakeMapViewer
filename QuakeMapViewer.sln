@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 15 for Windows Desktop
+# Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeMapViewer", "QuakeMapViewer\QuakeMapViewer.csproj", "{7DD466A7-6383-4F15-A2DD-939F8C2FF95D}"
@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6A708BD8-0
 		Docs\Quake Specs v3.4.html = Docs\Quake Specs v3.4.html
 		Docs\Todo.txt = Docs\Todo.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinForm", "WinForm\WinForm.csproj", "{4264178B-EB3A-4E45-A018-5A4D3651446F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{7DD466A7-6383-4F15-A2DD-939F8C2FF95D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DD466A7-6383-4F15-A2DD-939F8C2FF95D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DD466A7-6383-4F15-A2DD-939F8C2FF95D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
