@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4264178B-EB3A-4E45-A018-5A4D3651446F}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>WinForm</RootNamespace>
-    <AssemblyName>WinForm</AssemblyName>
+    <RootNamespace>QuakeWinForm</RootNamespace>
+    <AssemblyName>QuakeWinForm</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

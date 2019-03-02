@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WinForm {
+namespace QuakeWinForm {
     static class Program {
         /// <summary>
         /// 해당 응용 프로그램의 주 진입점입니다.
