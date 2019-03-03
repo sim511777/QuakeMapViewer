@@ -6,10 +6,28 @@ ok pvs 구현
 - Face = faces[faceIdx]
 ok lightmap texture 로드
 ok lightmap coord 로드
-라이트맵 약간 안깔끔함
+ok 라이트맵 약간 안깔끔함
 nearest 모드 구현
 entity pvs 구현
 
 multitexture
 slimdx or xna(fna, monogame) 으로 포팅
 wireframe모드 추가
+
+==== sharpdx ====
+CSharp3D QuakeMapViewer에 통합
+WinForms 프로젝트 생성
+Panel.Handle로 Device생성
+모델
+텍스쳐
+조명
+마우스 제어
+Direct3D11 BasicEffect로 셰이더 코드 없이 렌더링
+
+와이어프레임
+노말매핑
+
+==== 소프트웨어 렌더러 ====
+소프트웨어 렝더러 만들것 : Numeric이름공간의 클래스 사용
+프레그먼트 레스터라이저 C로 만들것 -> Simd -> 멀티쓰레드 -> BlackBook(Micheal Abrash 책 참조)
+Vertex 레스터라이저 C로 만들것 -> Simd -> 멀티쓰레드 -> BlackBook(Micheal Abrash 책 참조)
