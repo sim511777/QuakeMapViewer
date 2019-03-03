@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-D:\github\QuakeMapViewer\QuakeWpf\obj\Debug\
+D:\github\Graphics_3D\QuakeMapViewer\QuakeWpf\obj\Debug\
 QuakeWpf
 none
 false
 DEBUG;TRACE
-D:\github\QuakeMapViewer\QuakeWpf\App.xaml
+D:\github\Graphics_3D\QuakeMapViewer\QuakeWpf\App.xaml
 11151548125
 
-71518773919
+11-448739558
 151984215308
 MainWindow.xaml;
 
-False
+True
 

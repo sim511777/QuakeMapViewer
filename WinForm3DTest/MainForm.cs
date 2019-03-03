@@ -84,7 +84,7 @@ namespace WinForm3DTest {
 
 
             // 이펙트 생성
-            this.effect = Effect.FromString(device, Properties.Resources.MiniCube, ShaderFlags.None);
+            this.effect = Effect.FromString(device, Resources.MiniCube, ShaderFlags.None);
 
             // 버텍스 엘리먼트 생성 (버텍스 버퍼에 대한 정보)
             var vertexElems = new[] {
