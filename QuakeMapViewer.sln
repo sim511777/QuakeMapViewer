@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeWinForm", "QuakeWinFor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contents", "Contents\Contents.csproj", "{14336703-0E10-4F05-A3E7-34F553346E24}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinForm3DTest", "WinForm3DTest\WinForm3DTest.csproj", "{75F1217E-9EBB-424C-8D31-5F807ADA291F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{14336703-0E10-4F05-A3E7-34F553346E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14336703-0E10-4F05-A3E7-34F553346E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14336703-0E10-4F05-A3E7-34F553346E24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75F1217E-9EBB-424C-8D31-5F807ADA291F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75F1217E-9EBB-424C-8D31-5F807ADA291F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75F1217E-9EBB-424C-8D31-5F807ADA291F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75F1217E-9EBB-424C-8D31-5F807ADA291F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
