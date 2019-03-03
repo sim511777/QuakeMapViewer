@@ -15,13 +15,14 @@ slimdx or xna(fna, monogame) 으로 포팅
 wireframe모드 추가
 
 ==== sharpdx ====
-CSharp3D QuakeMapViewer에 통합
-WinForms 프로젝트 생성
-Panel.Handle로 Device생성
+ok CSharp3D QuakeMapViewer에 통합
+ok WinForms 프로젝트 생성
+ok Panel.Handle로 Device생성
+마우스 제어
+윈도우 리사이즈
 모델
 텍스쳐
 조명
-마우스 제어
 Direct3D11 BasicEffect로 셰이더 코드 없이 렌더링
 
 와이어프레임
