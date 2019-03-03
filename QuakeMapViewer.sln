@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeWpf", "QuakeWpf\QuakeW
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeWinForm", "QuakeWinForm\QuakeWinForm.csproj", "{4264178B-EB3A-4E45-A018-5A4D3651446F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contents", "..\CSharp3D\Contents\Contents.csproj", "{14336703-0E10-4F05-A3E7-34F553346E24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14336703-0E10-4F05-A3E7-34F553346E24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14336703-0E10-4F05-A3E7-34F553346E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14336703-0E10-4F05-A3E7-34F553346E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14336703-0E10-4F05-A3E7-34F553346E24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
