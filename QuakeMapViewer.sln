@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeWpf", "QuakeWpf\QuakeW
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeWinForm", "QuakeWinForm\QuakeWinForm.csproj", "{4264178B-EB3A-4E45-A018-5A4D3651446F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contents", "..\CSharp3D\Contents\Contents.csproj", "{14336703-0E10-4F05-A3E7-34F553346E24}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contents", "Contents\Contents.csproj", "{14336703-0E10-4F05-A3E7-34F553346E24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
