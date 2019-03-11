@@ -99,7 +99,7 @@ namespace QuakeWpf {
          if (this.bsp == null)
             return;
 
-         var selModelSource = this.rdoTexture.IsChecked == true ? this.bsp.geoModels : this.bsp.lightModels;
+         var selModelSource = this.rdoTexture.IsChecked == true ? this.bsp.mipModels : this.bsp.lightModels;
 
          var currLeaf = GetCurrLeaf();
          int leafIdx = 0;
@@ -143,7 +143,7 @@ namespace QuakeWpf {
                var leaf = this.bsp.leafs[leafIdx + 1];
                for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
                   int surfaceId = this.bsp.lface[lFaceId];
-                  models.Add(this.bsp.geoModels[surfaceId]);
+                  models.Add(this.bsp.mipModels[surfaceId]);
                }
                leafIdx++;
             } 

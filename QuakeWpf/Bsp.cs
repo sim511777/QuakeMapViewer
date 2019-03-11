@@ -37,11 +37,11 @@ namespace QuakeWpf {
         public int[] ledges;      // List of Edges.
         public Model[] models;      // List of Models.
 
-        public DiffuseMaterial[] materials;   // texture
-        public GeometryModel3D[] geoModels; // geo models
+        public DiffuseMaterial[] mipMaterials;   // texture
+        public GeometryModel3D[] mipModels; // geo models
         public GeometryModel3D[] lightModels; // geo models
 
-        public static DiffuseMaterial GetMaterial(Miptex miptex) {
+        public static DiffuseMaterial GetMipMaterial(Miptex miptex) {
             if (miptex == null)
                 return null;
 
@@ -54,7 +54,7 @@ namespace QuakeWpf {
             return material;
         }
 
-        public GeometryModel3D GetGeoModel(Face face) {
+        public GeometryModel3D GetMipModel(Face face) {
             var ledgelist = this.ledges.Skip(face.ledge_id).Take(face.ledge_num);
             var vidxs = ledgelist
                .Select((ledge) => (ledge >= 0) ? new int[] { this.edges[ledge].vertex0, this.edges[ledge].vertex1 } : new int[] { this.edges[-ledge].vertex1, this.edges[-ledge].vertex0 })
@@ -62,7 +62,7 @@ namespace QuakeWpf {
                .Where((vidx, i) => (i % 2 == 0));
 
             TexInfo texinfo = this.texinfo[face.texinfo_id];
-            var material = this.materials[texinfo.texture_id];
+            var material = this.mipMaterials[texinfo.texture_id];
             var imageBrush = material.Brush as ImageBrush;
             var tw = imageBrush.ImageSource.Width;
             var th = imageBrush.ImageSource.Height;
@@ -231,8 +231,8 @@ namespace QuakeWpf {
                 bsp.ledges = ReadItems(br, header.ledges, (b) => b.ReadInt32());
                 bsp.models = ReadItems(br, header.models, (b) => Model.Read(b));
 
-                bsp.materials = bsp.miptexs.Select((mip) => GetMaterial(mip)).ToArray();
-                bsp.geoModels = bsp.faces.Select((face) => bsp.GetGeoModel(face)).ToArray();
+                bsp.mipMaterials = bsp.miptexs.Select((mip) => GetMipMaterial(mip)).ToArray();
+                bsp.mipModels = bsp.faces.Select((face) => bsp.GetMipModel(face)).ToArray();
                 bsp.lightModels = bsp.faces.Select((face) => bsp.GetLightModel(face)).ToArray();
 
                 return bsp;
