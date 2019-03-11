@@ -143,7 +143,7 @@ namespace QuakeWpf {
                var leaf = this.bsp.leafs[leafIdx + 1];
                for (int lFaceId = leaf.lface_id, cnt = 0; cnt < leaf.lface_num; lFaceId++, cnt++) {
                   int surfaceId = this.bsp.lface[lFaceId];
-                  models.Add(this.bsp.mipModels[surfaceId]);
+                  models.Add(selModelSource[surfaceId]);
                }
                leafIdx++;
             } 
