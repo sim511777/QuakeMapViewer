@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2042
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6A708BD8-0CC9-473A-8DA0-F18360BF7FD5}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,12 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{6A708BD8-0
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeWpf", "QuakeWpf\QuakeWpf.csproj", "{7DD466A7-6383-4F15-A2DD-939F8C2FF95D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuakeWinForm", "QuakeWinForm\QuakeWinForm.csproj", "{4264178B-EB3A-4E45-A018-5A4D3651446F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contents", "Contents\Contents.csproj", "{14336703-0E10-4F05-A3E7-34F553346E24}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinForm3DTest", "WinForm3DTest\WinForm3DTest.csproj", "{75F1217E-9EBB-424C-8D31-5F807ADA291F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,18 +21,6 @@ Global
 		{7DD466A7-6383-4F15-A2DD-939F8C2FF95D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DD466A7-6383-4F15-A2DD-939F8C2FF95D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DD466A7-6383-4F15-A2DD-939F8C2FF95D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4264178B-EB3A-4E45-A018-5A4D3651446F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14336703-0E10-4F05-A3E7-34F553346E24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{14336703-0E10-4F05-A3E7-34F553346E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{14336703-0E10-4F05-A3E7-34F553346E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{14336703-0E10-4F05-A3E7-34F553346E24}.Release|Any CPU.Build.0 = Release|Any CPU
-		{75F1217E-9EBB-424C-8D31-5F807ADA291F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{75F1217E-9EBB-424C-8D31-5F807ADA291F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{75F1217E-9EBB-424C-8D31-5F807ADA291F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{75F1217E-9EBB-424C-8D31-5F807ADA291F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
